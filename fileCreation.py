@@ -341,7 +341,7 @@ class AutoNet:
   def run():
     os.system('cls' if os.name == 'nt' else 'clear')
     print('This program will create a nerual network of your design.\nJust follow the instructions and give valid inputs.If you do not wish to continue enter simply type -1 then press the Enter key.''')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     if(i=='-1'):
       sys.exit()
@@ -349,10 +349,10 @@ class AutoNet:
     hid = AutoNet.getHiddenLayers(out)
     lrn = AutoNet.getTrainingSettings()
     print('What should the file be named?\nPlease do not inlcude the file extension i.e. do not include the \'.py\'')
-    fl = raw_input()
+    fl = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     print('Name the model.')
-    mdl = raw_input()
+    mdl = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     print('Creating Model...')
     AutoNet.CreateModel(x=inp,y=out,ty=m,hidden=hid,learn=lrn,filename=fl,modelname=mdl)
@@ -377,7 +377,7 @@ class AutoNet:
     cns = ''
     print('What metric from the list do you want to optimize by?\n'+str(AutoNet.met))
     print('Please enter the integer corresponding to the correct metric.')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(i.isdigit() and (-1<int(i)<4)):
@@ -385,10 +385,10 @@ class AutoNet:
         break
       else:
         print('Sorry that was not an integer, or an option, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
     print('Finally how many epochs should the model be trained over?')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
         if(i.isdigit()):
@@ -396,7 +396,7 @@ class AutoNet:
           break
         else:
           print('Sorry was not an integer.')
-        i = raw_input()
+        i = input()
         os.system('cls' if os.name == 'nt' else 'clear')
     return ary
     
@@ -409,7 +409,7 @@ class AutoNet:
     df = 0
     print('What Optimizer from the list do you want to optimize by?\n'+str(AutoNet.opt))
     print('Please enter the integer corresponding to the correct Optimizer.')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(i.isdigit() and (-1<int(i)<8)):
@@ -418,10 +418,10 @@ class AutoNet:
         break
       else:
         print('Sorry that was not an integer, or an option, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
     print('Would you like to use the default settings or not?\nDefault: 1 Not: 0.\n')
-    i = raw_input()
+    i = input()
     while True:
       if(i.isdigit() and (-1<int(i)<2)):
         df = int(i)
@@ -429,7 +429,7 @@ class AutoNet:
         break
       else:
         print('Sorry that was not an integer, or an option, please try again.')
-      i = raw_input()
+      i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     if(df==1):
       ary = ary + AutoNet.getDefaults(temp)
@@ -535,7 +535,7 @@ class AutoNet:
   def getLearningRate():
     val = ''
     print('Now what is the learning rate?\nEnter a float ex. 0.005.')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(isinstance(float(i),float)):
@@ -543,7 +543,7 @@ class AutoNet:
         break
       else:
         print('Sorry that was not an a float, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
 
     return val
@@ -553,7 +553,7 @@ class AutoNet:
   def getRho():
     val = ''
     print('What value would you like for rho?\nPlease note that this is a float. i.e. 0.01')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(isinstance(float(i),float)):
@@ -561,7 +561,7 @@ class AutoNet:
         break
       else:
         print('Sorry that was not an a float, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
@@ -571,7 +571,7 @@ class AutoNet:
   def getEpsilon():
     val = ''
     print('What value would you like for epsilon?\nPlease note that this is a float. i.e. 0.01')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(isinstance(float(i),float)):
@@ -579,7 +579,7 @@ class AutoNet:
         break
       else:
         print('Sorry that was not an a float, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
@@ -589,7 +589,7 @@ class AutoNet:
   def getInitialAccumulatorValue():
     val = ''
     print('What value would you like for intial_accumulator_value?\nPlease note that this is a float and must be greater than zero. i.e. 0.01')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(isinstance(float(i),float) and float(i) > 0.0):
@@ -597,7 +597,7 @@ class AutoNet:
         break
       else:
         print('Sorry that was either not an a float, or not greater than 0, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
@@ -607,7 +607,7 @@ class AutoNet:
   def getInitialGradientSquaredAccumulatorValue():
     val = ''
     print('What value would you like for intial_gradient_squared_accumulator_value?\nPlease note that this is a float and must be greater than 0. i.e. 0.01')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(isinstance(float(i),float) and float(i) > 0.0):
@@ -615,7 +615,7 @@ class AutoNet:
         break
       else:
         print('Sorry that was either not an a float, or not greater than 0, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
@@ -625,7 +625,7 @@ class AutoNet:
   def getL1RegularizationStrength():
     val = ''
     print('What value would you like for l1_regularization_strength?\nPlease note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(isinstance(float(i),float) and float(i) >= 0.0):
@@ -633,7 +633,7 @@ class AutoNet:
         break
       else:
         print('Sorry that was either not an a float, or less than 0, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
@@ -643,7 +643,7 @@ class AutoNet:
   def getL2RegularizationStrength():
     val = ''
     print('What value would you like for l2_regularization_strength?\nPlease note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(isinstance(float(i),float) and float(i) >= 0.0):
@@ -651,7 +651,7 @@ class AutoNet:
         break
       else:
         print('Sorry that was either not an a float, or less than 0, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
@@ -661,7 +661,7 @@ class AutoNet:
   def getBeta1():
     val = ''
     print('What value would you like for beta1?\nPlease note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(isinstance(float(i),float) and float(i) >= 0.0):
@@ -669,7 +669,7 @@ class AutoNet:
         break
       else:
         print('Sorry that was either not an a float, or less than 0, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
@@ -679,7 +679,7 @@ class AutoNet:
   def getBeta2():
     val = ''
     print('What value would you like for beta2?\nPlease note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(isinstance(float(i),float) and float(i) >= 0.0):
@@ -687,7 +687,7 @@ class AutoNet:
         break
       else:
         print('Sorry that was either not an a float, or less than 0, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
@@ -697,7 +697,7 @@ class AutoNet:
   def getMomentum():
     val = ''
     print('What value would you like for momentum?\nPlease note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(isinstance(float(i),float) and float(i) >= 0.0):
@@ -705,7 +705,7 @@ class AutoNet:
         break
       else:
         print('Sorry that was either not an a float, or less than 0, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
@@ -715,7 +715,7 @@ class AutoNet:
   def getLearningRatePower():
     val = ''
     print('What value would you like for learning_rate_power?\nPlease note that this is a float and must be less than or equal to 0. i.e. -0.5')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(isinstance(float(i),float) and float(i) <= 0.0):
@@ -723,7 +723,7 @@ class AutoNet:
         break
       else:
         print('Sorry that was either not an a float, or greater than 0, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
@@ -733,7 +733,7 @@ class AutoNet:
   def getDecay():
     val = ''
     print('What value would you like for decay?\nPlease note that this is a float and must be less than or equal to 0. i.e. 0.01')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(isinstance(float(i),float) and float(i) >= 0.0):
@@ -741,7 +741,7 @@ class AutoNet:
         break
       else:
         print('Sorry that was either not an a float, or less than 0, please try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
@@ -753,12 +753,12 @@ class AutoNet:
     cnt = 0
     cns = ''
     print('Now how many hidden layers  are there?')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     if(i.isdigit()):
       while(cnt<int(int(i))):
         print('For layer '+str(cnt+1)+'.\nHow many nodes are there?')
-        n = raw_input()
+        n = input()
         os.system('cls' if os.name == 'nt' else 'clear')
         while True:
           if(n.isdigit()):
@@ -766,11 +766,11 @@ class AutoNet:
             break
           else:
             print('Sorry that was either not an integer, or an option, please try again.')
-            n = raw_input()
+            n = input()
             os.system('cls' if os.name == 'nt' else 'clear')
         print('For layer '+str(cnt+1)+'.\n'+str(AutoNet.act))
         print('That list is the activation functions supported what is this layer made of?')
-        n = raw_input()
+        n = input()
         os.system('cls' if os.name == 'nt' else 'clear')
         while True:
           if((n.isdigit()) and (-1 < int(n) < 6)):
@@ -778,7 +778,7 @@ class AutoNet:
             break
           else:
             print('Sorry that was not an integer please try again.')
-            n = raw_input()
+            n = input()
             os.system('cls' if os.name == 'nt' else 'clear')
         if((cnt+1) != int(int(i))):
           ary = ary + cns + ','
@@ -798,7 +798,7 @@ class AutoNet:
     o = 0
     m = ''
     print('First thing is first: enter \'R\' for a regression model, and \'C\' for a classification problem.')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(i=='R'):
@@ -811,10 +811,10 @@ class AutoNet:
         break
       else:
         print('Sorry that is not an option try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
     print('Now how many inputs are there?\nPlease enter an integer like 1.')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(i.isdigit()):
@@ -822,10 +822,10 @@ class AutoNet:
         break
       else:
         print('Sorry that is not an option try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
     print('How many outputs are there?\nIf this is a classification model that usess one-hot encoding enter number of possibile values.')
-    i = raw_input()
+    i = input()
     os.system('cls' if os.name == 'nt' else 'clear')
     while True:
       if(i.isdigit()):
@@ -833,7 +833,7 @@ class AutoNet:
         break
       else:
         print('Sorry that is not an option try again.')
-      i = raw_input()
+      i = input()
       os.system('cls' if os.name == 'nt' else 'clear')
     return np.array([[t,n]]),np.array([[t,o]]),m
 

@@ -7,7 +7,6 @@
 
 '''
 
-import numpy as np
 import time
 import sys
 import os
@@ -18,8 +17,7 @@ class AutoNet:
   header = '#!/usr/bin/env python'
 
   # import statements that occur at the top of the file.
-  im = 'import tensorflow as tf\nimport numpy as np\nimport pandas as pd\nimport math'
-
+  im = 'import tensorflow as tf\nimport math'
 
   # Dictionary of Possible metrics
   met = {
@@ -57,6 +55,7 @@ class AutoNet:
     doc = '\'\'\'\n  This is a Neural Network created to perform'
     if(t=='R'):
       doc = doc +' regression.'
+      
     else:
       doc = doc +' classification.'
 
@@ -65,7 +64,9 @@ class AutoNet:
     doc = doc + '\n  Outputs: ' + str(out[0][1])
     doc = doc + '\n  Date: ' + str(time.strftime('%d/%m/%Y')) 
     doc = doc + '\n  Author: Shane Will\n\n\'\'\''
+    
     return doc
+
 
   # Creates layers for the model.
   @staticmethod
@@ -84,8 +85,10 @@ class AutoNet:
       l = l + 'weights = tf.Variable(tf.truncated_normal(['+str(prvnum)
       l = l + ','+str(nodes)+'], '
       l = l + 'stddev = 1.0/math.sqrt(float('+str(prvnum)+'))), name=\'weights\')\n    '
+      
       if(a==0):
         l = l + 'biases = tf.Variable(tf.zeros(['+str(nodes)+'])+0.1, name=\'biases\')\n  '
+        
       else:
         l = l + 'biases = tf.Variable(tf.zeros(['+str(nodes)+']), name=\'biases\')\n  '
       
@@ -109,13 +112,16 @@ class AutoNet:
       l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'
     
     return l  
+
   
   # Creates the place holders for inputs and outputs.
   @staticmethod
   def CreatePlaceholders(inp,out):
     x = 'X = tf.placeholder('+str(inp[0][0])+',[None,'+str(inp[0][1])+'])\n'
     y = 'Y = tf.placeholder('+str(out[0][0])+',[None,'+str(out[0][1])+'])\n'
+    
     return x,y
+
 
   # Creates the neural network.
   @staticmethod
@@ -123,7 +129,6 @@ class AutoNet:
     net = 'def '+str(mdlname)+'(x):\n\n'
     lay = len(struct)+1  
     i=0
-    print(len(struct))
     while(i < (len(struct))+1):
       if(i ==len(struct)):
         net = net + AutoNet.CreateLayer(prvnum=struct[i-1][0],
@@ -132,6 +137,7 @@ class AutoNet:
                 a=struct[i-1][1],
                 nlay=len(struct),
                 m=typ)
+
       elif(i==0):
         net = net + AutoNet.CreateLayer(prvnum=inp[0][1],
                 nodes=struct[i][0],
@@ -139,6 +145,7 @@ class AutoNet:
                 a=struct[i][1],
                 nlay=len(struct),
                 m=typ)
+
       else:
         net = net + AutoNet.CreateLayer(prvnum=struct[i-1][0],
                 nodes=struct[i][0],
@@ -146,10 +153,13 @@ class AutoNet:
                 a=struct[i][1],
                 nlay=len(struct),
                 m=typ)
+
       i+=1
       
     net = net + '\n  return out\n\n\n'
+    
     return net
+
 
   # Creates the cost function.
   @staticmethod
@@ -157,17 +167,23 @@ class AutoNet:
     c = 'def Cost(pred,act):\n\n  '
     if(lrn[0][0]==0):
       c = c + 'c = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(pred,act))))\n\n  '
+
     elif(lrn[0][0]==1):
       c = c + 'c = tf.reduce_mean(tf.square(tf.sub(pred,act)))\n\n  ' 
+
     elif(lrn[0][0]==2):
       c = c + 'c = tf.reduce_mean(tf.abs(tf.sub(pred,act)))\n\n  '
+
     elif(lrn[0][0]==3):
       c = c + 'c = tf.reduce_mean(tf.abs(tf.div(tf.sub(pred,act),act)))* 100.0\n\n  '
+
     else:
       c = c + 'c = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred,act))\n\n  '
 
     c = c + 'return c\n\n\n'
+    
     return c
+
 
   # Writes to code for the actual session running to train of the model
   @staticmethod
@@ -179,6 +195,7 @@ class AutoNet:
     sess = sess + 'if(epoch % 100 ==0):\n        '
     sess = sess + 'saver.save(sess,\''+mdlname+'.ckpt\',global_step=epoch)\n        '
     sess = sess + 'print(\'Epoch: \'+str(epoch)+\' Cost: \'+str(c))\n'
+    
     return sess
 
 
@@ -188,17 +205,20 @@ class AutoNet:
     o = 'def Optimize(loss):\n\n' 
     
     if(lrn[1][1] == 1):
-      o = o + AutoNet.OptimizierDefaultString(lrn) + '  '
+      o = o + AutoNet.OptimizerDefaultString(lrn) + '  '
+      
     else:
       o = o + AutoNet.OptimizerString(lrn) + '  '
             
     o = o + 'opt = optimizer.minimize(loss)\n\n  '
     o = o + 'return opt'
+    
     return o
+
 
   # Creates the optimizer if default option was choosen.
   @staticmethod
-  def OptimizierDefaultString(lrn):
+  def OptimizerDefaultString(lrn):
     o = '  '
     if(lrn[1][0]==0):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
@@ -207,22 +227,28 @@ class AutoNet:
     elif(lrn[1][0]==1):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer()\n'
+      
     elif(lrn[1][0]==2):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+      
     elif(lrn[1][0]==3):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+      
     elif(lrn[1][0]==4):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
       o = o + ', momentum='+str(lrn[1][3])+')\n'
+      
     elif(lrn[1][0]==5):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer()\n'
+      
     elif(lrn[1][0]==6):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+      
     else:
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
@@ -237,31 +263,37 @@ class AutoNet:
     if(lrn[1][0]==0):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+      
     elif(lrn[1][0]==1):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
       o = o + ', rho='+str(lrn[1][3])
       o = o + ', epsilon='+str(lrn[1][4])+')\n'
+      
     elif(lrn[1][0]==2):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
       o = o + ', initial_accumulator_value='+str(lrn[1][3])+')\n'
+      
     elif(lrn[1][0]==3):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
       o = o + ', initial_gradient_squared_accumulator_value='+str(lrn[1][3])
       o = o + ', l1_regularization_strength='+str(lrn[1][4])
       o = o + ', l2_regularization_strength='+str(lrn[1][5])+')\n'
+      
     elif(lrn[1][0]==4):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
       o = o + ', momentum='+str(lrn[1][3])+')\n'
+      
     elif(lrn[1][0]==5):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
       o = o + ', beta1='+str(lrn[1][3])
       o = o + ', beta2='+str(lrn[1][4])
       o = o + ', epsilon='+str(lrn[1][5])+')\n'
+      
     elif(lrn[1][0]==6):
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
@@ -269,6 +301,7 @@ class AutoNet:
       o = o + ', initial_accumulator_value='+str(lrn[1][4])
       o = o + ', l1_regularization_strength='+str(lrn[1][5])
       o = o + ', l2_regularization_strength='+str(lrn[1][6])+')\n'
+      
     else:
       o = o + 'optimizer = tf.train.'+AutoNet.opt[lrn[1][0]]
       o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
@@ -282,7 +315,6 @@ class AutoNet:
   @staticmethod
   def CreateModel(x,y,ty,hidden,learn,filename,modelname):
     fl = str(filename)+'.py'
-    print(fl)
     f = open(fl,'w')
     f.write(AutoNet.header)
     [f.write('\n') for _ in range(3)]
@@ -329,15 +361,15 @@ class AutoNet:
   # Creates the train method
   @staticmethod
   def CreateTrainer(mdl,lrn):
-      s = 'def train(x_, y_):\n\n  '
-      s = s + 'pred = '+mdl+'(X)\n  '
-      s = s + 'cost = Cost(pred,Y)\n  '
-      s = s + 'opt = Optimize(cost)\n  '
-      s = s + 'init = tf.global_variables_initializer()\n  '
-      s = s + 'saver = tf.train.Saver(tf.global_variables())\n\n  ' 
-      s = s + AutoNet.CreateSession(lrn,mdl)
+    s = 'def train(x_, y_):\n\n  '
+    s = s + 'pred = '+mdl+'(X)\n  '
+    s = s + 'cost = Cost(pred,Y)\n  '
+    s = s + 'opt = Optimize(cost)\n  '
+    s = s + 'init = tf.global_variables_initializer()\n  '
+    s = s + 'saver = tf.train.Saver(tf.global_variables())\n\n  ' 
+    s = s + AutoNet.CreateSession(lrn,mdl)
       
-      return s
+    return s
 
   # Holds to code to walk a user through creating the right inputs for file creation.
   @staticmethod
@@ -345,7 +377,7 @@ class AutoNet:
     os.system('cls' if os.name == 'nt' else 'clear')
     print('This program will create a nerual network of your design.')
     print('Just follow the instructions and give valid inputs.')
-    print('If you do not wish to continue enter simply type -1 then press the Enter key.''')
+    print('If you do not wish to continue enter simply type -1 then press the Enter key.')
     i = sys.stdin.readline().strip()
     os.system('cls' if os.name == 'nt' else 'clear')
     if(i=='-1'):
@@ -367,8 +399,8 @@ class AutoNet:
   # Populates the array of parameters the training optimizer needs.
   @staticmethod
   def getTrainingSettings():
-    ary ='np.array(['
-    e ='])'
+    ary ='['
+    e =']'
     met = AutoNet.getMetric()
     train = AutoNet.getOptimizer()
     
@@ -376,75 +408,118 @@ class AutoNet:
 
     return eval(ary)
 
-  # Asks for the input of data for learning rate, cost metric, and the number of epochs to train over.
+  # Asks the user for the metric to optimize by.
   @staticmethod
-  def getMetric():
-    ary = '['
-    cns = ''
+  def ChooseMetric(ary):
     print('What metric from the list do you want to optimize by?\n'+str(AutoNet.met))
     print('Please enter the integer corresponding to the correct metric.')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
+      i = sys.stdin.readline().strip()
       if(i.isdigit() and (-1<int(i)<4)):
         ary = ary + str(i) + ','
         break
+        
       else:
         print('Sorry that was not an integer, or an option, please try again.')
       i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
-    print('Finally how many epochs should the model be trained over?')
-    i = sys.stdin.readline().strip()
     os.system('cls' if os.name == 'nt' else 'clear')
-    while True:
-        if(i.isdigit()):
-          ary = ary + str(i) + ']'
-          break
-        else:
-          print('Sorry was not an integer.')
-        i = sys.stdin.readline().strip()
-        os.system('cls' if os.name == 'nt' else 'clear')
+      
     return ary
+
+  # Asks the user for the number of iterations to train over.
+  @staticmethod
+  def getEpoch(ary):
+    print('Finally how many epochs should the model be trained over?')
+    while True:
+      i = sys.stdin.readline().strip()
+      if(i.isdigit()):
+        ary = ary + str(i)
+        break
+        
+      else:
+        print('Sorry was not an integer.')
+        i = sys.stdin.readline().strip()
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+    return ary
+
+
+  # Asks for the input of data for cost metric, and the number of epochs to train over.
+  @staticmethod
+  def getMetric():
+    ary = '['
+    e = ']'
     
+    ary = AutoNet.ChooseMetric(ary)
+    ary = AutoNet.getEpoch(ary)
+    ary = ary + e
+
+    return ary
+
+
+  # Asks the user to choose an optimizer.
+  @staticmethod
+  def ChooseOptimizer(ary):
+    while True:
+      os.system('cls' if os.name == 'nt' else 'clear')
+      print('What Optimizer from the list do you want to optimize by?\n'+str(AutoNet.opt))
+      print('Please enter the integer corresponding to the correct Optimizer.')
+      i = sys.stdin.readline().strip()
+      if(i.isdigit() and (-1<int(i)<8)):
+        temp = int(i)
+        ary = ary + str(i) + ','
+        break
+        
+      else:
+        print('Sorry that was not an integer, or an option, please try again.')
+
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+    return ary,temp
+
+
+  # Asks the user if they want to use the default settings or not.
+  @staticmethod
+  def SetDefault(ary):
+    df = 0
+    print('Would you like to use the default settings or not?\nDefault: 1\tNot: 0.')
+    while True:
+      i = sys.stdin.readline().strip()
+      if(i.isdigit() and (-1<int(i)<2)):
+        df = int(i)
+        ary = ary + str(i) + ','
+        break
+        
+      else:
+        print('Sorry that was not an integer, or an option, please try again.')
+      i = sys.stdin.readline().strip()
+    os.system('cls' if os.name == 'nt' else 'clear')
+      
+    return ary,df
+
+
   # Gets the user inputs and data for the Optimizer.
   @staticmethod
   def getOptimizer():
     ary = '['
     cns = ''
-    temp = 0
     df = 0
-    print('What Optimizer from the list do you want to optimize by?\n'+str(AutoNet.opt))
-    print('Please enter the integer corresponding to the correct Optimizer.')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
-    while True:
-      if(i.isdigit() and (-1<int(i)<8)):
-        temp = int(i)
-        ary = ary + str(i) + ','
-        break
-      else:
-        print('Sorry that was not an integer, or an option, please try again.')
-      i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
-    print('Would you like to use the default settings or not?\nDefault: 1\tNot: 0.')
-    i = sys.stdin.readline().strip()
-    while True:
-      if(i.isdigit() and (-1<int(i)<2)):
-        df = int(i)
-        ary = ary + str(i) + ','
-        break
-      else:
-        print('Sorry that was not an integer, or an option, please try again.')
-      i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
+    temp = 0
+
+    ary , temp = AutoNet.ChooseOptimizer(ary)
+    ary , df = AutoNet.SetDefault(ary)
+
     if(df==1):
       ary = ary + AutoNet.getDefaults(temp)
+      
     else:
-      ary = ary + AutoNet.getOptimizerPatamerters(temp)
+      ary = ary + AutoNet.getOptimizerParameters(temp)
     
     ary = ary + ']'     
     os.system('cls' if os.name == 'nt' else 'clear')
+    
     return ary
+
 
   # Gets the optimizer values needed if default is chosen.
   @staticmethod
@@ -483,9 +558,10 @@ class AutoNet:
 
     return s
 
+
   # Gets the optimizer values needed if default is not chosen
   @staticmethod
-  def getOptimizerPatamerters(temp):
+  def getOptimizerParameters(temp):
     s = ''
     if(temp==0):
       l = AutoNet.getLearningRate()
@@ -538,60 +614,64 @@ class AutoNet:
 
     return s
 
+
   # Asks the user for the Rho value. 
   @staticmethod
   def getLearningRate():
     val = ''
     print('Now what is the learning rate?\nEnter a float ex. 0.005.')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
+      i = sys.stdin.readline().strip()
       if(isinstance(float(i),float)):
         val = str(i)
         break
+        
       else:
         print('Sorry that was not an a float, please try again.')
       i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
 
     return val
+
 
   # Asks the user for the Rho value. 
   @staticmethod
   def getRho():
     val = ''
     print('What value would you like for rho?\nPlease note that this is a float. i.e. 0.01')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
+      i = sys.stdin.readline().strip()
       if(isinstance(float(i),float)):
         val = str(i)
         break
+        
       else:
         print('Sorry that was not an a float, please try again.')
       i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
- 
+
+
   # Asks the user for the Epsilon value.
   @staticmethod
   def getEpsilon():
     val = ''
     print('What value would you like for epsilon?')
     print('Please note that this is a float. i.e. 0.01')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
+      i = sys.stdin.readline().strip()
       if(isinstance(float(i),float)):
         val = str(i)
         break
+        
       else:
         print('Sorry that was not an a float, please try again.')
       i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
+
 
   # Asks the user for the Initial Accumulator value.
   @staticmethod
@@ -599,37 +679,39 @@ class AutoNet:
     val = ''
     print('What value would you like for intial_accumulator_value?')
     print('Please note that this is a float and must be greater than zero. i.e. 0.01')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
+      i = sys.stdin.readline().strip()
       if(isinstance(float(i),float) and float(i) > 0.0):
         val = str(i)
         break
+        
       else:
         print('Sorry that was either not an a float, or not greater than 0, please try again.')
       i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
-    
+
+
   # Asks the user for the Gradient Squared Accumulator value.    
   @staticmethod
   def getInitialGradientSquaredAccumulatorValue():
     val = ''
     print('What value would you like for intial_gradient_squared_accumulator_value?')
     print('Please note that this is a float and must be greater than 0. i.e. 0.01')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
+      i = sys.stdin.readline().strip()
       if(isinstance(float(i),float) and float(i) > 0.0):
         val = str(i)
         break
+        
       else:
         print('Sorry that was either not an a float, or not greater than 0, please try again.')
       i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
+
 
   # Asks the user for the L1 Regularization Strength value. 
   @staticmethod
@@ -637,18 +719,19 @@ class AutoNet:
     val = ''
     print('What value would you like for l1_regularization_strength?')
     print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
+      i = sys.stdin.readline().strip()
       if(isinstance(float(i),float) and float(i) >= 0.0):
         val = str(i)
         break
+        
       else:
         print('Sorry that was either not an a float, or less than 0, please try again.')
       i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
+
 
   # Asks the user for the L2 Regularization Strength value.
   @staticmethod
@@ -656,205 +739,271 @@ class AutoNet:
     val = ''
     print('What value would you like for l2_regularization_strength?')
     print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
+      i = sys.stdin.readline().strip()
       if(isinstance(float(i),float) and float(i) >= 0.0):
         val = str(i)
         break
+        
       else:
         print('Sorry that was either not an a float, or less than 0, please try again.')
       i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
-    
+
+
   # Asks the user for the Beta1 value.
   @staticmethod
   def getBeta1():
     val = ''
     print('What value would you like for beta1?')
     print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
+      i = sys.stdin.readline().strip()
       if(isinstance(float(i),float) and float(i) >= 0.0):
         val = str(i)
         break
+        
       else:
         print('Sorry that was either not an a float, or less than 0, please try again.')
       i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
     
+
   # Asks the user for the Beta2 value.
   @staticmethod
   def getBeta2():
     val = ''
     print('What value would you like for beta2?')
     print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
+      i = sys.stdin.readline().strip()
       if(isinstance(float(i),float) and float(i) >= 0.0):
         val = str(i)
         break
+        
       else:
         print('Sorry that was either not an a float, or less than 0, please try again.')
       i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
-    
+
+
   # Asks the user for the Momentum value.
   @staticmethod
   def getMomentum():
     val = ''
     print('What value would you like for momentum?')
     print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
+      i = sys.stdin.readline().strip()
       if(isinstance(float(i),float) and float(i) >= 0.0):
         val = str(i)
         break
+        
       else:
         print('Sorry that was either not an a float, or less than 0, please try again.')
       i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
-    
+
+ 
   # Asks the user for the Learning Rate Power value.
   @staticmethod
   def getLearningRatePower():
     val = ''
     print('What value would you like for learning_rate_power?')
     print('Please note that this is a float and must be less than or equal to 0. i.e. -0.5')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
+      i = sys.stdin.readline().strip()
       if(isinstance(float(i),float) and float(i) <= 0.0):
         val = str(i)
         break
+        
       else:
         print('Sorry that was either not an a float, or greater than 0, please try again.')
       i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
-    
+
+
   # Asks the user for the Decay value.
   @staticmethod
   def getDecay():
     val = ''
     print('What value would you like for decay?')
     print('Please note that this is a float and must be less than or equal to 0. i.e. 0.01')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
+      i = sys.stdin.readline().strip()
       if(isinstance(float(i),float) and float(i) >= 0.0):
         val = str(i)
         break
+        
       else:
         print('Sorry that was either not an a float, or less than 0, please try again.')
-      i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
       
     return val
     
+
+  # Asks the user to choose an activation function for a layer.
+  @staticmethod
+  def getActivationFunction(cnt,cns):
+    n = 0
+    print('For layer '+str(cnt+1)+'.\n'+str(AutoNet.act))
+    print('That list is the activation functions supported what is this layer made of?')
+    while True:
+      n = sys.stdin.readline().strip()
+      if((n.isdigit()) and (-1 < int(n) < 6)):
+        cns = cns + str(n) + ']'
+        break
+        
+      else:
+        print('Sorry that was not an integer please try again.')
+    os.system('cls' if os.name == 'nt' else 'clear')
+    
+    return cns
+
+
+  # Asks the user how many nodes are in a layer.
+  @staticmethod
+  def getNumberofNodes(cnt,cns):
+    n = 0
+    print('For layer '+str(cnt+1)+'.\nHow many nodes are there?')
+    while True:
+      n = sys.stdin.readline().strip()
+      if(n.isdigit()):
+        cns = '['+str(n)+','
+        break
+        
+      else:
+        print('Sorry that was either not an integer, or an option, please try again.')
+        n = sys.stdin.readline().strip()
+    os.system('cls' if os.name == 'nt' else 'clear')
+            
+    return cns
+
+ 
+  def getNumberOfLayers(cnt):
+    print('Now how many hidden layers  are there?')
+    while True:
+      i = sys.stdin.readline().strip()
+      if(i.isdigit()):
+        break
+      else:
+        print('Sorry that was not an integer.')
+    os.system('cls' if os.name == 'nt' else 'clear')
+    return i
+
+
   # Asks the user for the data on the hidden layers.
   @staticmethod
   def getHiddenLayers(out):
-    ary = 'np.array(['
+    ary = '['
     cnt = 0
     cns = ''
-    print('Now how many hidden layers  are there?')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
-    if(i.isdigit()):
-      while(cnt<int(int(i))):
-        print('For layer '+str(cnt+1)+'.\nHow many nodes are there?')
-        n = sys.stdin.readline().strip()
-        os.system('cls' if os.name == 'nt' else 'clear')
-        while True:
-          if(n.isdigit()):
-            cns = '['+str(n)+','
-            break
-          else:
-            print('Sorry that was either not an integer, or an option, please try again.')
-            n = sys.stdin.readline().strip()
-            os.system('cls' if os.name == 'nt' else 'clear')
-        print('For layer '+str(cnt+1)+'.\n'+str(AutoNet.act))
-        print('That list is the activation functions supported what is this layer made of?')
-        n = sys.stdin.readline().strip()
-        os.system('cls' if os.name == 'nt' else 'clear')
-        while True:
-          if((n.isdigit()) and (-1 < int(n) < 6)):
-            cns = cns +str(n) + ']'
-            break
-          else:
-            print('Sorry that was not an integer please try again.')
-            n = sys.stdin.readline().strip()
-            os.system('cls' if os.name == 'nt' else 'clear')
-        if((cnt+1) != int(int(i))):
-          ary = ary + cns + ','
-          cns = ''
-        else:
-          ary = ary + cns + '])'
-        cnt = cnt + 1
     
+    i = AutoNet.getNumberOfLayers(cnt)
+    while(cnt < int(i)):
+      cns = AutoNet.getNumberofNodes(cnt,cns)
+      cns = AutoNet.getActivationFunction(cnt,cns)
+      if((cnt+1) != int(int(i))):
+        ary += cns + ','
+        cns = ''
+
+      else:
+        ary += cns + ']'
+      
+      cnt += 1
+      
     e = eval(ary)
+    
     return e
 
-  # Asks the user for the data on the inputs and outputs.
+
+  # Asks the user for the model type.
+  @staticmethod
+  def getModelType():
+    t = ''
+    m = ''
+    print('First thing is first: enter \'R\' for a regression model, and \'C\' for a classification problem.')
+    while True:
+      i = sys.stdin.readline().strip()
+      if(i=='R'):
+        t = '\'float64\''
+        m = i
+        break
+        
+      elif(i=='C'):
+        t = '\'float64\''
+        m = i
+        break
+        
+      else:
+        print('Sorry that is not an option try again.')
+      i = sys.stdin.readline().strip()
+    os.system('cls' if os.name == 'nt' else 'clear')
+      
+    return t,m
+
+
+  # Asks the user for the number of inputs.    
+  @staticmethod
+  def getInputCount():
+    n = ''
+    print('Now how many inputs are there?\nPlease enter an integer like 1.')
+    while True:
+      i = sys.stdin.readline().strip()
+      if(i.isdigit()):
+        n = i
+        break
+        
+      else:
+        print('Sorry that is not an option try again.')
+      i = sys.stdin.readline().strip()
+    os.system('cls' if os.name == 'nt' else 'clear')
+      
+    return n
+
+  
+  # Asks the user for the number of outputs.
+  @staticmethod
+  def getOutputCount():
+    o = ''
+    print('How many outputs are there?')
+    print('If this is a classification model that uses one-hot encoding enter number of possibile values.')
+    while True:
+      i = sys.stdin.readline().strip()
+      if(i.isdigit()):
+        o = i
+        break
+        
+      else:
+        print('Sorry that is not an option try again.')
+      i = sys.stdin.readline().strip()
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+    return o
+
+
+  # Gets the data on number of inputs, outputs, and model type.
   @staticmethod
   def getInputs():
     t = ''
     n = 0
     o = 0
     m = ''
-    print('First thing is first: enter \'R\' for a regression model, and \'C\' for a classification problem.')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
-    while True:
-      if(i=='R'):
-        t = '\'float64\''
-        m = i
-        break
-      elif(i=='C'):
-        t = '\'float64\''
-        m = i
-        break
-      else:
-        print('Sorry that is not an option try again.')
-      i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
-    print('Now how many inputs are there?\nPlease enter an integer like 1.')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
-    while True:
-      if(i.isdigit()):
-        n = i
-        break
-      else:
-        print('Sorry that is not an option try again.')
-      i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
-    print('How many outputs are there?')
-    print('If this is a classification model that uses one-hot encoding enter number of possibile values.')
-    i = sys.stdin.readline().strip()
-    os.system('cls' if os.name == 'nt' else 'clear')
-    while True:
-      if(i.isdigit()):
-        o = i
-        break
-      else:
-        print('Sorry that is not an option try again.')
-      i = sys.stdin.readline().strip()
-      os.system('cls' if os.name == 'nt' else 'clear')
-    return np.array([[t,n]]),np.array([[t,o]]),m
+    t , m = AutoNet.getModelType()
+    n = AutoNet.getInputCount()
+    o = AutoNet.getOutputCount()
+   
+    return [[t,n]],[[t,o]],m
 
 
 AutoNet.run()

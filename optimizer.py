@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-#========================================================================#
-#																		 #
-# This file holds all the code for choosing the model optimizer setings. #
-#																		 #
-#========================================================================#
+#=========================================================================#
+#									  #
+# This file holds all the code for choosing the model optimizer settings. #
+#									  #
+#=========================================================================#
 
 import sys
 import os

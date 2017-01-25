@@ -10,7 +10,9 @@
 import time
 import sys
 import os
+import cost as cs
 import optimizer as op
+
 
 
 # Line to specify that the file is a script for python.
@@ -19,25 +21,6 @@ header = '#!/usr/bin/env python'
 # import statements that occur at the top of the file.
 im = 'import tensorflow as tf\nimport math'
 
-# Dictionary of Possible metrics
-met = {
-        0 : 'RMSE',
-        1 : 'MSE',
-        2 : 'MAE',
-        3 : 'MAPE'
-        }
-
-# Dictionary of possible optimization methods.
-opt = {
-        0 : 'GradientDescent',
-        1 : 'Adadelta',
-        2 : 'Adagrad',
-        3 : 'AdagradDA',
-        4 : 'Momentum',
-        5 : 'Adam',
-        6 : 'Ftrl',
-        7 : 'RMSProp'
-        }
 
 # Dictionary of possible activation functions.
 act = {
@@ -134,7 +117,7 @@ def CreatePlaceholders(inp,out):
   return x,y
 
 
-# Creates the neural network.  
+# Creates the neural network.
 def CreateNetwork(struct,mdlname,typ,inp,ou):
   net = 'def '+str(mdlname)+'(x):\n\n'
   lay = len(struct)+1  
@@ -200,7 +183,7 @@ def CreateCost(lrn):
   return c
 
 
-# Writes to code for the actual session running to train of the model
+# Writes to code for the actual session running to train of the model.
 def CreateSession(epchnum,mdlname):
   sess = 'with tf.Session() as sess:\n    '
   sess = sess + 'sess.run(init)\n    '
@@ -233,80 +216,80 @@ def CreateOptimizer(lrn):
 def OptimizerDefaultString(lrn):
   o = '  '
   if(lrn[1][0]==0):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
 
   elif(lrn[1][0]==1):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer()\n'
       
   elif(lrn[1][0]==2):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
       
   elif(lrn[1][0]==3):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
       
   elif(lrn[1][0]==4):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
     o = o + ', momentum='+str(lrn[1][3])+')\n'
       
   elif(lrn[1][0]==5):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer()\n'
       
   elif(lrn[1][0]==6):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
       
   else:
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
     
   return o
 
 
-# Creates the optimizer string if default option is not chosen
+# Creates the optimizer string if default option is not chosen.
 def OptimizerString(lrn):
   o = '  '
   if(lrn[1][0]==0):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
       
   elif(lrn[1][0]==1):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
     o = o + ', rho='+str(lrn[1][3])
     o = o + ', epsilon='+str(lrn[1][4])+')\n'
       
   elif(lrn[1][0]==2):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
     o = o + ', initial_accumulator_value='+str(lrn[1][3])+')\n'
       
   elif(lrn[1][0]==3):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
     o = o + ', initial_gradient_squared_accumulator_value='+str(lrn[1][3])
     o = o + ', l1_regularization_strength='+str(lrn[1][4])
     o = o + ', l2_regularization_strength='+str(lrn[1][5])+')\n'
       
   elif(lrn[1][0]==4):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
     o = o + ', momentum='+str(lrn[1][3])+')\n'
       
   elif(lrn[1][0]==5):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
     o = o + ', beta1='+str(lrn[1][3])
     o = o + ', beta2='+str(lrn[1][4])
     o = o + ', epsilon='+str(lrn[1][5])+')\n'
       
   elif(lrn[1][0]==6):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
     o = o + ', learning_rate_power='+str(lrn[1][3])
     o = o + ', initial_accumulator_value='+str(lrn[1][4])
@@ -314,13 +297,13 @@ def OptimizerString(lrn):
     o = o + ', l2_regularization_strength='+str(lrn[1][6])+')\n'
       
   else:
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
     o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
     o = o + ', decay='+str(lrn[1][3])
     o = o + ', momentum='+str(lrn[1][4])
     o = o + ', epsilon='+str(lrn[1][5])+')\n'
     
-  return o
+    return o
 
 # This method actually writes the file out.
 def CreateModel(x,y,ty,hidden,learn,filename,modelname):
@@ -368,7 +351,7 @@ def CreateModel(x,y,ty,hidden,learn,filename,modelname):
   [f.write('\n') for _ in range(3)]
   f.close()
 
-# Creates the train method
+# Creates the train method.
 def CreateTrainer(mdl,lrn):
   s = 'def train(x_, y_):\n\n  '
   s = s + 'pred = '+mdl+'(X)\n  '
@@ -408,80 +391,12 @@ def run():
 def getTrainingSettings():
   ary ='['
   e =']'
-  met = getMetric()
-  train = getOptimizer()
+  met = cs.getMetric()
+  train = op.getOptimizer()
   
   ary = ary + met +','+ train + e
 
   return eval(ary)
-
-# Asks the user for the metric to optimize by.  
-def ChooseMetric(ary):
-  print('What metric from the list do you want to optimize by?\n'+str(met))
-  print('Please enter the integer corresponding to the correct metric.')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(i.isdigit() and (-1<int(i)<4)):
-      ary = ary + str(i) + ','
-      break
-    
-    else:
-      print('Sorry that was not an integer, or an option, please try again.')
-    i = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return ary
-
-
-# Asks the user for the number of iterations to train over.
-def getEpoch(ary):
-  print('Finally how many epochs should the model be trained over?')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(i.isdigit()):
-      ary = ary + str(i)
-      break
-  
-    else:
-      print('Sorry was not an integer.')
-    i = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-
-  return ary
-
-
-# Asks for the input of data for cost metric, and the number of epochs to train over.
-def getMetric():
-  ary = '['
-  e = ']'
-  
-  ary = ChooseMetric(ary)
-  ary = getEpoch(ary)
-  ary = ary + e
-
-  return ary
-
-
-# Gets the user inputs and data for the Optimizer.
-def getOptimizer():
-  ary = '['
-  cns = ''
-  df = 0
-  temp = 0
-
-  ary , temp = op.ChooseOptimizer(ary)
-  ary , df = op.SetDefault(ary)
-
-  if(df==1):
-    ary = ary + op.getOptimizerDefaultParameters(temp)
-      
-  else:
-    ary = ary + op.getOptimizerParameters(temp)
-    
-  ary = ary + ']'     
-  os.system('cls' if os.name == 'nt' else 'clear')
-  
-  return ary
   
 
 # Asks the user to choose an activation function for a layer.
@@ -502,7 +417,7 @@ def getActivationFunction(cnt,cns):
   return cns
 
 
- # Asks the user how many nodes are in a layer.
+# Asks the user how many nodes are in a layer.
 def getNumberofNodes(cnt,cns):
   n = 0
   print('For layer '+str(cnt+1)+'.\nHow many nodes are there?')
@@ -520,7 +435,7 @@ def getNumberofNodes(cnt,cns):
   return cns
 
 
-# Asks the user for the number of layers in the neural network
+# Asks the user for the number of layers in the neural network.
 def getNumberOfLayers(cnt):
   print('Now how many hidden layers  are there?')
   while True:
@@ -586,7 +501,7 @@ def getModelType():
   return t,m
 
 
-# Asks the user for the number of inputs.    
+# Asks the user for the number of inputs.
 def getInputCount():
   n = ''
   print('Now how many inputs are there?\nPlease enter an integer like 1.')

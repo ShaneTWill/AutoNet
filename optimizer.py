@@ -8,13 +8,48 @@
 
 import sys
 import os
-import fileCreation as an
+
+
+# Dictionary of possible optimization methods.
+opt = {
+        0 : 'GradientDescent',
+        1 : 'Adadelta',
+        2 : 'Adagrad',
+        3 : 'AdagradDA',
+        4 : 'Momentum',
+        5 : 'Adam',
+        6 : 'Ftrl',
+        7 : 'RMSProp'
+        }
+
+
+# Gets the user inputs and data for the Optimizer.
+def getOptimizer():
+  ary = '['
+  cns = ''
+  df = 0
+  temp = 0
+
+  ary , temp = ChooseOptimizer(ary)
+  ary , df = SetDefault(ary)
+
+  if(df==1):
+    ary = ary + getOptimizerDefaultParameters(temp)
+      
+  else:
+    ary = ary + getOptimizerParameters(temp)
+    
+  ary = ary + ']'     
+  os.system('cls' if os.name == 'nt' else 'clear')
+  
+  return ary
+
 
 # Asks the user to choose an optimizer.
 def ChooseOptimizer(ary):
   while True:
     os.system('cls' if os.name == 'nt' else 'clear')
-    print('What Optimizer from the list do you want to optimize by?\n'+str(an.opt))
+    print('What Optimizer from the list do you want to optimize by?\n'+str(opt))
     print('Please enter the integer corresponding to the correct Optimizer.')
     i = sys.stdin.readline().strip()
     if(i.isdigit() and (-1<int(i)<8)):
@@ -86,7 +121,7 @@ def getOptimizerDefaultParameters(temp):
   return s
 
 
-# Gets the optimizer values needed if default is not chosen
+# Gets the optimizer values needed if default is not chosen.
 def getOptimizerParameters(temp):
   s = ''
   if(temp==0):
@@ -141,7 +176,7 @@ def getOptimizerParameters(temp):
   return s
 
 
-# Asks the user for the Rho value. 
+# Asks the user for the Learning Rate value.
 def getLearningRate():
   val = ''
   print('Now what is the learning rate?\nEnter a float ex. 0.005.')
@@ -159,7 +194,7 @@ def getLearningRate():
   return val
 
 
-# Asks the user for the Rho value. 
+# Asks the user for the Rho value.
 def getRho():
   val = ''
   print('What value would you like for rho?\nPlease note that this is a float. i.e. 0.01')
@@ -215,7 +250,7 @@ def getInitialAccumulatorValue():
   return val
 
 
-# Asks the user for the Gradient Squared Accumulator value.    
+# Asks the user for the Gradient Squared Accumulator value.
 def getInitialGradientSquaredAccumulatorValue():
   val = ''
   print('What value would you like for intial_gradient_squared_accumulator_value?')
@@ -234,7 +269,7 @@ def getInitialGradientSquaredAccumulatorValue():
   return val
 
 
-# Asks the user for the L1 Regularization Strength value. 
+# Asks the user for the L1 Regularization Strength value.
 def getL1RegularizationStrength():
   val = ''
   print('What value would you like for l1_regularization_strength?')

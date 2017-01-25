@@ -58,7 +58,12 @@ def CreateDocString(struct,inp,out,t):
   else:
     doc = doc +' classification.'
 
-  doc = doc + '\n\n  Depth: ' + str(len(struct)-1) 
+  if(len(struct)-1 == -1):
+    doc = doc + '\n\n  Depth: 0' 
+  
+  else:
+    doc = doc + '\n\n  Depth: ' + str(len(struct)-1)
+  
   doc = doc + '\n  Inputs: ' + str(inp[0][1]) 
   doc = doc + '\n  Outputs: ' + str(out[0][1])
   doc = doc + '\n  Date: ' + str(time.strftime('%d/%m/%Y')) 
@@ -91,11 +96,20 @@ def CreateLayer(prvnum,nodes,laynum,a,nlay,m):
       l = l + 'biases = tf.Variable(tf.zeros(['+str(nodes)+']), name=\'biases\')\n  '
       
 
-  if(int(laynum) == 1):
+  if(int(laynum) == 1 and laynum != (nlay+1)):
     l = l + '  h'+str(laynum)+' = tf.nn.'+act[a]
     l = l + '(tf.matmul(x,tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'
-      
-  elif(laynum == (nlay+1)):
+
+  elif(laynum == (nlay+1) and (laynum-1) == 0 ):
+    if(m =='R'):
+      l = l + '  out = tf.matmul(x'
+      l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\'))\n'
+
+    else:
+      l = l + '  out = tf.nn.sigmoid(tf.matmul(x'
+      l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'
+
+  elif(laynum == (nlay+1) and (laynum-1) != 0 ):
     if(m =='R'):
       l = l + '  out = tf.matmul(h'+str(laynum-1)
       l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\'))\n'
@@ -126,7 +140,7 @@ def CreateNetwork(struct,mdlname,typ,inp,ou):
   lay = len(struct)+1  
   i=0
   while(i < (len(struct))+1):
-    if(i ==len(struct)):
+    if(i ==len(struct) and len(struct)!=0):
       net = net + CreateLayer(prvnum=struct[i-1][0],
             nodes=ou[0][1],
             laynum=(i+1),
@@ -134,14 +148,20 @@ def CreateNetwork(struct,mdlname,typ,inp,ou):
             nlay=len(struct),
             m=typ)
 
-    elif(i==0):
+    elif(i==0 and len(struct)!=0 ):
       net = net + CreateLayer(prvnum=inp[0][1],
             nodes=struct[i][0],
             laynum=(i+1),
             a=struct[i][1],
             nlay=len(struct),
             m=typ)
-
+    elif(i==0 and len(struct)==0):
+      net = net + CreateLayer(prvnum=inp[0][1],
+            nodes=ou[0][1],
+            laynum=(i+1),
+            a='',
+            nlay=len(struct),
+            m=typ)
     else:
       net = net + CreateLayer(prvnum=struct[i-1][0],
             nodes=struct[i][0],
@@ -532,7 +552,10 @@ def getHiddenLayers(out):
       ary += cns + ']'
       
     cnt += 1
-      
+  
+  if(int(i)==0):
+    ary = ary + ']'
+
   e = eval(ary)
     
   return e

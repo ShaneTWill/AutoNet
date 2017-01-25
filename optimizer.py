@@ -23,6 +23,99 @@ opt = {
         }
 
 
+# Creates the optimizer if default option was choosen.
+def OptimizerDefaultString(lrn):
+  o = '  '
+  if(lrn[1][0]==0):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+
+  elif(lrn[1][0]==1):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer()\n'
+      
+  elif(lrn[1][0]==2):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+      
+  elif(lrn[1][0]==3):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+      
+  elif(lrn[1][0]==4):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
+    o = o + ', momentum='+str(lrn[1][3])+')\n'
+      
+  elif(lrn[1][0]==5):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer()\n'
+      
+  elif(lrn[1][0]==6):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+      
+  else:
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+    
+  return o
+
+
+# Creates the optimizer string if default option is not chosen.
+def OptimizerString(lrn):
+  o = '  '
+  if(lrn[1][0]==0):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+      
+  elif(lrn[1][0]==1):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
+    o = o + ', rho='+str(lrn[1][3])
+    o = o + ', epsilon='+str(lrn[1][4])+')\n'
+      
+  elif(lrn[1][0]==2):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
+    o = o + ', initial_accumulator_value='+str(lrn[1][3])+')\n'
+      
+  elif(lrn[1][0]==3):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
+    o = o + ', initial_gradient_squared_accumulator_value='+str(lrn[1][3])
+    o = o + ', l1_regularization_strength='+str(lrn[1][4])
+    o = o + ', l2_regularization_strength='+str(lrn[1][5])+')\n'
+      
+  elif(lrn[1][0]==4):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
+    o = o + ', momentum='+str(lrn[1][3])+')\n'
+      
+  elif(lrn[1][0]==5):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
+    o = o + ', beta1='+str(lrn[1][3])
+    o = o + ', beta2='+str(lrn[1][4])
+    o = o + ', epsilon='+str(lrn[1][5])+')\n'
+      
+  elif(lrn[1][0]==6):
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
+    o = o + ', learning_rate_power='+str(lrn[1][3])
+    o = o + ', initial_accumulator_value='+str(lrn[1][4])
+    o = o + ', l1_regularization_strength='+str(lrn[1][5])
+    o = o + ', l2_regularization_strength='+str(lrn[1][6])+')\n'
+      
+  else:
+    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
+    o = o + ', decay='+str(lrn[1][3])
+    o = o + ', momentum='+str(lrn[1][4])
+    o = o + ', epsilon='+str(lrn[1][5])+')\n'
+    
+    return o
+
 # Gets the user inputs and data for the Optimizer.
 def getOptimizer():
   ary = '['

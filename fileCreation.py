@@ -12,6 +12,7 @@ import sys
 import os
 import cost as cs
 import optimizer as op
+import model as ml
 
 
 
@@ -22,15 +23,6 @@ header = '#!/usr/bin/env python'
 im = 'import tensorflow as tf\nimport math'
 
 
-# Dictionary of possible activation functions.
-act = {
-        0 : 'relu',
-        1 : 'relu6',
-        2 : 'crelu',
-        3 : 'elu',
-        4 : 'softplus',
-        5 : 'softsign'
-        }
 
 # Document string about the model in the file.
 def CreateDocString(struct,inp,out,t):
@@ -80,7 +72,7 @@ def CreateLayer(prvnum,nodes,laynum,a,nlay,m):
       
 
   if(int(laynum) == 1 and laynum != (nlay+1)):
-    l = l + '  h'+str(laynum)+' = tf.nn.'+act[a]
+    l = l + '  h'+str(laynum)+' = tf.nn.'+ml.act[a]
     l = l + '(tf.matmul(x,tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'
 
   elif(laynum == (nlay+1) and (laynum-1) == 0 ):
@@ -102,7 +94,7 @@ def CreateLayer(prvnum,nodes,laynum,a,nlay,m):
       l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'
       
   else:
-    l = l + '  h'+str(laynum)+' = tf.nn.'+act[a]
+    l = l + '  h'+str(laynum)+' = tf.nn.'+ml.act[a]
     l = l + '(tf.matmul(h'+str(laynum-1)
     l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'
     
@@ -201,109 +193,16 @@ def CreateOptimizer(lrn):
   o = 'def Optimize(loss):\n\n' 
   
   if(lrn[1][1] == 1):
-    o = o + OptimizerDefaultString(lrn) + '  '
+    o = o + op.OptimizerDefaultString(lrn) + '  '
       
   else:
-    o = o + OptimizerString(lrn) + '  '
+    o = o + op.OptimizerString(lrn) + '  '
             
   o = o + 'opt = optimizer.minimize(loss)\n\n  '
   o = o + 'return opt'
     
   return o
 
-
-# Creates the optimizer if default option was choosen.
-def OptimizerDefaultString(lrn):
-  o = '  '
-  if(lrn[1][0]==0):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
-
-  elif(lrn[1][0]==1):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer()\n'
-      
-  elif(lrn[1][0]==2):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
-      
-  elif(lrn[1][0]==3):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
-      
-  elif(lrn[1][0]==4):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', momentum='+str(lrn[1][3])+')\n'
-      
-  elif(lrn[1][0]==5):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer()\n'
-      
-  elif(lrn[1][0]==6):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
-      
-  else:
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
-    
-  return o
-
-
-# Creates the optimizer string if default option is not chosen.
-def OptimizerString(lrn):
-  o = '  '
-  if(lrn[1][0]==0):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
-      
-  elif(lrn[1][0]==1):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', rho='+str(lrn[1][3])
-    o = o + ', epsilon='+str(lrn[1][4])+')\n'
-      
-  elif(lrn[1][0]==2):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', initial_accumulator_value='+str(lrn[1][3])+')\n'
-      
-  elif(lrn[1][0]==3):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', initial_gradient_squared_accumulator_value='+str(lrn[1][3])
-    o = o + ', l1_regularization_strength='+str(lrn[1][4])
-    o = o + ', l2_regularization_strength='+str(lrn[1][5])+')\n'
-      
-  elif(lrn[1][0]==4):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', momentum='+str(lrn[1][3])+')\n'
-      
-  elif(lrn[1][0]==5):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', beta1='+str(lrn[1][3])
-    o = o + ', beta2='+str(lrn[1][4])
-    o = o + ', epsilon='+str(lrn[1][5])+')\n'
-      
-  elif(lrn[1][0]==6):
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', learning_rate_power='+str(lrn[1][3])
-    o = o + ', initial_accumulator_value='+str(lrn[1][4])
-    o = o + ', l1_regularization_strength='+str(lrn[1][5])
-    o = o + ', l2_regularization_strength='+str(lrn[1][6])+')\n'
-      
-  else:
-    o = o + 'optimizer = tf.train.'+op.opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', decay='+str(lrn[1][3])
-    o = o + ', momentum='+str(lrn[1][4])
-    o = o + ', epsilon='+str(lrn[1][5])+')\n'
-    
-    return o
 
 # This method actually writes the file out.
 def CreateModel(x,y,ty,hidden,learn,filename,modelname):
@@ -373,8 +272,8 @@ def run():
   os.system('cls' if os.name == 'nt' else 'clear')
   if(i=='-1'):
     sys.exit()
-  inp,out,m = getInputs()
-  hid = getHiddenLayers(out)
+  inp,out,m = ml.getModelBasics()
+  hid = ml.getHiddenLayers(out)
   lrn = getTrainingSettings()
   print('What should the file be named?')
   print('Please do not inlcude the file extension i.e. do not include the \'.py\'')
@@ -398,157 +297,5 @@ def getTrainingSettings():
 
   return eval(ary)
   
-
-# Asks the user to choose an activation function for a layer.
-def getActivationFunction(cnt,cns):
-  n = 0
-  print('For layer '+str(cnt+1)+'.\n'+str(act))
-  print('That list is the activation functions supported what is this layer made of?')
-  while True:
-    n = sys.stdin.readline().strip()
-    if((n.isdigit()) and (-1 < int(n) < 6)):
-      cns = cns + str(n) + ']'
-      break
-        
-    else:
-      print('Sorry that was not an integer please try again.')
-  os.system('cls' if os.name == 'nt' else 'clear')
-    
-  return cns
-
-
-# Asks the user how many nodes are in a layer.
-def getNumberofNodes(cnt,cns):
-  n = 0
-  print('For layer '+str(cnt+1)+'.\nHow many nodes are there?')
-  while True:
-    n = sys.stdin.readline().strip()
-    if(n.isdigit()):
-      cns = '['+str(n)+','
-      break
-        
-    else:
-      print('Sorry that was either not an integer, or an option, please try again.')
-      n = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-            
-  return cns
-
-
-# Asks the user for the number of layers in the neural network.
-def getNumberOfLayers(cnt):
-  print('Now how many hidden layers  are there?')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(i.isdigit()):
-      break
-    else:
-      print('Sorry that was not an integer.')
-  os.system('cls' if os.name == 'nt' else 'clear')
-
-  return i
-
-
-# Asks the user for the data on the hidden layers.
-def getHiddenLayers(out):
-  ary = '['
-  cnt = 0
-  cns = ''
-  
-  i = getNumberOfLayers(cnt)
-  while(cnt < int(i)):
-    cns = getNumberofNodes(cnt,cns)
-    cns = getActivationFunction(cnt,cns)
-    if((cnt+1) != int(int(i))):
-      ary += cns + ','
-      cns = ''
-
-    else:
-      ary += cns + ']'
-      
-    cnt += 1
-  
-  if(int(i)==0):
-    ary = ary + ']'
-
-  e = eval(ary)
-    
-  return e
-
-
-# Asks the user for the model type.
-def getModelType():
-  t = ''
-  m = ''
-  print('First thing is first: enter \'R\' for a regression model, and \'C\' for a classification problem.')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(i=='R'):
-      t = '\'float64\''
-      m = i
-      break
-    
-    elif(i=='C'):
-      t = '\'float64\''
-      m = i
-      break
-        
-    else:
-      print('Sorry that is not an option try again.')
-
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return t,m
-
-
-# Asks the user for the number of inputs.
-def getInputCount():
-  n = ''
-  print('Now how many inputs are there?\nPlease enter an integer like 1.')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(i.isdigit()):
-      n = i
-      break
-        
-    else:
-      print('Sorry that is not an option try again.')
-
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return n
-
-  
-# Asks the user for the number of outputs.
-def getOutputCount():
-  o = ''
-  print('How many outputs are there?')
-  print('If this is a classification model that uses one-hot encoding enter number of possibile values.')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(i.isdigit()):
-      o = i
-      break
-        
-    else:
-      print('Sorry that is not an option try again.')
-
-  os.system('cls' if os.name == 'nt' else 'clear')
-
-  return o
-
-
-# Gets the data on number of inputs, outputs, and model type.
-def getInputs():
-  t = ''
-  n = 0
-  o = 0
-  m = ''
-  t , m = getModelType()
-  n = getInputCount()
-  o = getOutputCount()
- 
-  return [[t,n]],[[t,o]],m
-
 
 #run()

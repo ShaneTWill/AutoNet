@@ -1,19 +1,11 @@
 #!/usr/bin/env python
 
-'''
-
-  This class takes inputs and creates the code for a NeuralNetwork model
-  the file it creates is a python file that is written out to the current directory.
-
-'''
-
 import time
 import sys
 import os
 import cost as cs
 import optimizer as op
 import model as ml
-
 
 
 # Line to specify that the file is a script for python.
@@ -24,8 +16,20 @@ im = 'import tensorflow as tf\nimport math'
 
 
 
-# Document string about the model in the file.
 def CreateDocString(struct,inp,out,t):
+  """
+  Creates the document string for the model.
+
+  Keyword arguments:
+  struct -- The parameter list for the model.
+  inp -- Input parameter list.
+  out -- Output parameter list.
+  t -- Model type.
+
+  Returns:
+  doc -- Document string for the model file.
+  """
+
   doc = '\'\'\'\n  This is a Neural Network created to perform'
   if(t=='R'):
     doc = doc +' regression.'
@@ -41,14 +45,27 @@ def CreateDocString(struct,inp,out,t):
   
   doc = doc + '\n  Inputs: ' + str(inp[0][1]) 
   doc = doc + '\n  Outputs: ' + str(out[0][1])
-  doc = doc + '\n  Date: ' + str(time.strftime('%d/%m/%Y')) 
-  doc = doc + '\n  Author: Shane Will\n\n\'\'\''
+  doc = doc + '\n  Date: ' + str(time.strftime('%d/%m/%Y'))+'\n\n\'\'\''
     
   return doc
 
 
-# Creates layers for the model.
 def CreateLayer(prvnum,nodes,laynum,a,nlay,m):
+  """
+  Creates the document string for the model.
+
+  Keyword arguments:
+  prvnum -- Number of nodes in the previous layer.
+  nodes -- Number of nodes in this layer.
+  laynum -- Layer number.
+  a -- Activation function key.
+  nlay -- Number of layers in the model
+  m -- Model type.
+
+  Returns:
+  l -- The code for a layer in a neural network as a string.
+  """
+
   if(laynum == (nlay+1)):
     l = '  with tf.name_scope(\'output\'):\n    '
     l = l + 'weights = tf.Variable(tf.truncated_normal(['+str(prvnum)
@@ -100,50 +117,77 @@ def CreateLayer(prvnum,nodes,laynum,a,nlay,m):
     
   return l  
 
-  
-# Creates the place holders for inputs and outputs.
+
 def CreatePlaceholders(inp,out):
+  """
+  Creates the placeholders for the data.
+
+  Keyword arguments:
+  inp -- List of input data and data type.
+  out -- List of output data and data type.
+  
+  Returns:
+  x -- The Input placeholder.
+  y -- The Output placeholder.
+  """
+
   x = 'X = tf.placeholder('+str(inp[0][0])+',[None,'+str(inp[0][1])+'])\n'
   y = 'Y = tf.placeholder('+str(out[0][0])+',[None,'+str(out[0][1])+'])\n'
     
   return x,y
 
 
-# Creates the neural network.
 def CreateNetwork(struct,mdlname,typ,inp,ou):
+  """
+  Creates the model.
+
+  Keyword arguments:
+  struct -- The data parameters for all the data.
+  mdlname -- Model name.
+  typ -- Model type.
+  inp -- List of input parameters.
+  ou -- List of output parameters.
+  m -- Model type.
+
+  Returns:
+  net -- The code for the model as a string.
+  """
+
   net = 'def '+str(mdlname)+'(x):\n\n'
   lay = len(struct)+1  
   i=0
   while(i < (len(struct))+1):
     if(i ==len(struct) and len(struct)!=0):
       net = net + CreateLayer(prvnum=struct[i-1][0],
-            nodes=ou[0][1],
-            laynum=(i+1),
-            a=struct[i-1][1],
-            nlay=len(struct),
-            m=typ)
+                              nodes=ou[0][1],
+                              laynum=(i+1),
+                              a=struct[i-1][1],
+                              nlay=len(struct),
+                              m=typ)
 
     elif(i==0 and len(struct)!=0 ):
       net = net + CreateLayer(prvnum=inp[0][1],
-            nodes=struct[i][0],
-            laynum=(i+1),
-            a=struct[i][1],
-            nlay=len(struct),
-            m=typ)
+                              nodes=struct[i][0],
+                              laynum=(i+1),
+                              a=struct[i][1],
+                              nlay=len(struct),
+                              m=typ)
+
     elif(i==0 and len(struct)==0):
       net = net + CreateLayer(prvnum=inp[0][1],
-            nodes=ou[0][1],
-            laynum=(i+1),
-            a='',
-            nlay=len(struct),
-            m=typ)
+                              nodes=ou[0][1],
+                              laynum=(i+1),
+                              a='',
+                              nlay=len(struct),
+                              m=typ)
+
     else:
       net = net + CreateLayer(prvnum=struct[i-1][0],
-            nodes=struct[i][0],
-            laynum=(i+1),
-            a=struct[i][1],
-            nlay=len(struct),
-            m=typ)
+                              nodes=struct[i][0],
+                              laynum=(i+1),
+                              a=struct[i][1],
+                              nlay=len(struct),
+                              m=typ)
 
     i+=1
       
@@ -152,8 +196,17 @@ def CreateNetwork(struct,mdlname,typ,inp,ou):
   return net
 
 
-# Creates the cost function.
 def CreateCost(lrn):
+  """
+  Creates the cost function for the model
+
+  Keyword arguments:
+  lrn -- Python list with containing the cost function, number of epochs, and the optimizer parameters..
+
+  Returns:
+  c -- Code for the cost function as a string.
+  """
+
   c = 'def Cost(pred,act):\n\n  '
   if(lrn[0][0]==0):
     c = c + 'c = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(pred,act))))\n\n  '
@@ -175,8 +228,18 @@ def CreateCost(lrn):
   return c
 
 
-# Writes to code for the actual session running to train of the model.
 def CreateSession(epchnum,mdlname):
+  """
+  Creates the session code for training the model.
+
+  Keyword arguments:
+  epchnum -- Number of epochs to train over.
+  mdlname -- Name of the model.
+
+  Returns:
+  sess -- The code for the training session.
+  """
+
   sess = 'with tf.Session() as sess:\n    '
   sess = sess + 'sess.run(init)\n    '
   sess = sess + 'for epoch in xrange(int('+str(epchnum[0][1])+')):\n      '
@@ -188,8 +251,17 @@ def CreateSession(epchnum,mdlname):
   return sess
 
 
-# Creates the optimizer for the training of the model.
 def CreateOptimizer(lrn):
+  """
+  Creates the optimizer code for the model.
+
+  Keyword arguments:
+  lrn -- List of optimizer parameters.
+
+  Returns:
+  o -- The code for the neural network optimizer.
+  """
+
   o = 'def Optimize(loss):\n\n' 
   
   if(lrn[1][1] == 1):
@@ -204,8 +276,21 @@ def CreateOptimizer(lrn):
   return o
 
 
-# This method actually writes the file out.
 def CreateModel(x,y,ty,hidden,learn,filename,modelname):
+  """
+  Creates the file that holds the model, optimizer, cost function, and train function using the 
+  specifications provided.
+
+  Keyword arguments:
+  x -- Input data parameter list.
+  y -- Output data parameter list.
+  ty -- Model type.
+  hidden -- List of hidden layer parameters.
+  learn -- The optimization parameter list(Cost, number of epochs, and optimizer parameter).
+  filename -- Name of the file.
+  modelname -- Name of the model
+  """
+
   fl = str(filename)+'.py'
   f = open(fl,'w')
   f.write(header)
@@ -250,20 +335,35 @@ def CreateModel(x,y,ty,hidden,learn,filename,modelname):
   [f.write('\n') for _ in range(3)]
   f.close()
 
-# Creates the train method.
+
 def CreateTrainer(mdl,lrn):
+  """
+  Creates the train function.
+
+  Keyword arguments:
+  lrn -- The optimizer parameter list.
+  mdl -- Name of the model
+
+  Returns:
+  s -- The train function as a string.
+  """
+
   s = 'def train(x_, y_):\n\n  '
   s = s + 'pred = '+mdl+'(X)\n  '
   s = s + 'cost = Cost(pred,Y)\n  '
   s = s + 'opt = Optimize(cost)\n  '
   s = s + 'init = tf.global_variables_initializer()\n  '
   s = s + 'saver = tf.train.Saver(tf.global_variables())\n\n  ' 
-  s = s + CreateSession(lrn,mdl)
+  s = s + CreateSession(epchnum=lrn,mdlname=mdl)
       
   return s
 
-# Holds to code to walk a user through creating the right inputs for file creation.
+
 def run():
+  """
+  Walks the user through creating the lists of data needed to make a neural network and then writes the model file out.
+  """
+
   os.system('cls' if os.name == 'nt' else 'clear')
   print('This program will create a nerual network of your design.')
   print('Just follow the instructions and give valid inputs.')
@@ -273,7 +373,7 @@ def run():
   if(i=='-1'):
     sys.exit()
   inp,out,m = ml.getModelBasics()
-  hid = ml.getHiddenLayers(out)
+  hid = ml.getHiddenLayers()
   lrn = getTrainingSettings()
   print('What should the file be named?')
   print('Please do not inlcude the file extension i.e. do not include the \'.py\'')
@@ -286,8 +386,14 @@ def run():
   CreateModel(x=inp,y=out,ty=m,hidden=hid,learn=lrn,filename=fl,modelname=mdl)
 
 
-# Populates the array of parameters the training optimizer needs.
 def getTrainingSettings():
+  """
+  Walks the user through selecting a cost function and an optimization algorithm.  
+
+  Returns:
+  A python array that is populated with the cost function parameters and the optimizer parameters.
+  """
+
   ary ='['
   e =']'
   met = cs.getMetric()
@@ -298,4 +404,3 @@ def getTrainingSettings():
   return eval(ary)
   
 
-#run()

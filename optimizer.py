@@ -1,11 +1,5 @@
 #!/usr/bin/env python
 
-#=========================================================================#
-#									  #
-# This file holds all the code for choosing the model optimizer settings. #
-#									  #
-#=========================================================================#
-
 import sys
 import os
 
@@ -23,114 +17,143 @@ opt = {
         }
 
 
-# Creates the optimizer if default option was choosen.
-def OptimizerDefaultString(lrn):
-  o = '  '
-  if(lrn[1][0]==0):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+def OptimizerDefaultString(param):
+  """
+  Creates the code string for an optimizer if the default flag was set to true.
 
-  elif(lrn[1][0]==1):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+  Keyword arguments:
+  param -- A python list that contains the optimizer key and parameter settings.
+
+  Returns:
+  o -- The optimizer code as a string.
+  """
+
+  o = '  '
+  if(param[1][0]==0):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
+
+  elif(param[1][0]==1):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
     o = o + 'Optimizer()\n'
       
-  elif(lrn[1][0]==2):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+  elif(param[1][0]==2):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
       
-  elif(lrn[1][0]==3):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+  elif(param[1][0]==3):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
       
-  elif(lrn[1][0]==4):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', momentum='+str(lrn[1][3])+')\n'
+  elif(param[1][0]==4):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])
+    o = o + ', momentum='+str(param[1][3])+')\n'
       
-  elif(lrn[1][0]==5):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
+  elif(param[1][0]==5):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
     o = o + 'Optimizer()\n'
       
-  elif(lrn[1][0]==6):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+  elif(param[1][0]==6):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
       
   else:
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
     
   return o
 
 
-# Creates the optimizer string if default option is not chosen.
-def OptimizerString(lrn):
+def OptimizerString(param):
+  """
+  Creates the code for a non-default optimizer string and returns it.
+
+  Keyword arguments:
+  param -- a python list that contains the optimizer key and parameter settings.
+
+  Returns:
+  o -- The optimizer code as a string. 
+  """
+
   o = '  '
-  if(lrn[1][0]==0):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])+')\n'
+  if(param[1][0]==0):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
       
-  elif(lrn[1][0]==1):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', rho='+str(lrn[1][3])
-    o = o + ', epsilon='+str(lrn[1][4])+')\n'
+  elif(param[1][0]==1):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])
+    o = o + ', rho='+str(param[1][3])
+    o = o + ', epsilon='+str(param[1][4])+')\n'
       
-  elif(lrn[1][0]==2):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', initial_accumulator_value='+str(lrn[1][3])+')\n'
+  elif(param[1][0]==2):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])
+    o = o + ', initial_accumulator_value='+str(param[1][3])+')\n'
       
-  elif(lrn[1][0]==3):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', initial_gradient_squared_accumulator_value='+str(lrn[1][3])
-    o = o + ', l1_regularization_strength='+str(lrn[1][4])
-    o = o + ', l2_regularization_strength='+str(lrn[1][5])+')\n'
+  elif(param[1][0]==3):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])
+    o = o + ', initial_gradient_squared_accumulator_value='+str(param[1][3])
+    o = o + ', l1_regularization_strength='+str(param[1][4])
+    o = o + ', l2_regularization_strength='+str(param[1][5])+')\n'
       
-  elif(lrn[1][0]==4):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', momentum='+str(lrn[1][3])+')\n'
+  elif(param[1][0]==4):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])
+    o = o + ', momentum='+str(param[1][3])+')\n'
       
-  elif(lrn[1][0]==5):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', beta1='+str(lrn[1][3])
-    o = o + ', beta2='+str(lrn[1][4])
-    o = o + ', epsilon='+str(lrn[1][5])+')\n'
+  elif(param[1][0]==5):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])
+    o = o + ', beta1='+str(param[1][3])
+    o = o + ', beta2='+str(param[1][4])
+    o = o + ', epsilon='+str(param[1][5])+')\n'
       
-  elif(lrn[1][0]==6):
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', learning_rate_power='+str(lrn[1][3])
-    o = o + ', initial_accumulator_value='+str(lrn[1][4])
-    o = o + ', l1_regularization_strength='+str(lrn[1][5])
-    o = o + ', l2_regularization_strength='+str(lrn[1][6])+')\n'
+  elif(param[1][0]==6):
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])
+    o = o + ', learning_rate_power='+str(param[1][3])
+    o = o + ', initial_accumulator_value='+str(param[1][4])
+    o = o + ', l1_regularization_strength='+str(param[1][5])
+    o = o + ', l2_regularization_strength='+str(param[1][6])+')\n'
       
   else:
-    o = o + 'optimizer = tf.train.'+opt[lrn[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(lrn[1][2])
-    o = o + ', decay='+str(lrn[1][3])
-    o = o + ', momentum='+str(lrn[1][4])
-    o = o + ', epsilon='+str(lrn[1][5])+')\n'
+    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+    o = o + 'Optimizer(learning_rate='+str(param[1][2])
+    o = o + ', decay='+str(param[1][3])
+    o = o + ', momentum='+str(param[1][4])
+    o = o + ', epsilon='+str(param[1][5])+')\n'
     
     return o
 
-# Gets the user inputs and data for the Optimizer.
+
 def getOptimizer():
+  """
+  Gets the optimizer settings and returns a string that is a list of optimizer settings.
+
+  This method gets all the information needed for the optimizer. These values are then
+  used to construct a python list with each position in the list corresponding to a set
+  of values for the optimizer.
+  
+  Returns:
+  ary -- A string that is a valid python list containing the optimizer key and parameter settings.
+  """
+
   ary = '['
   cns = ''
   df = 0
-  temp = 0
+  key = 0
 
-  ary , temp = ChooseOptimizer(ary)
+  ary , key = ChooseOptimizer(ary)
   ary , df = SetDefault(ary)
 
   if(df==1):
-    ary = ary + getOptimizerDefaultParameters(temp)
+    ary = ary + getOptimizerDefaultParameters(key)
       
   else:
-    ary = ary + getOptimizerParameters(temp)
+    ary = ary + getOptimizerParameters(key)
     
   ary = ary + ']'     
   os.system('cls' if os.name == 'nt' else 'clear')
@@ -138,15 +161,25 @@ def getOptimizer():
   return ary
 
 
-# Asks the user to choose an optimizer.
 def ChooseOptimizer(ary):
+  """
+  Asks the user to choose an optimizer from the dictionary of choices.
+  
+  Keyword arguments:
+  ary --  A string used to create the list of the optimizer parameters.
+
+  Returns:
+  ary -- The modified string ary.
+  key -- The chosen optimizer key as an int. 
+  """
+
   while True:
     os.system('cls' if os.name == 'nt' else 'clear')
     print('What Optimizer from the list do you want to optimize by?\n'+str(opt))
     print('Please enter the integer corresponding to the correct Optimizer.')
     i = sys.stdin.readline().strip()
     if(i.isdigit() and (-1<int(i)<8)):
-      temp = int(i)
+      key = int(i)
       ary = ary + str(i) + ','
       break
   
@@ -155,11 +188,21 @@ def ChooseOptimizer(ary):
 
   os.system('cls' if os.name == 'nt' else 'clear')
 
-  return ary,temp
+  return ary,key
 
 
-# Asks the user if they want to use the default settings or not.
 def SetDefault(ary):
+  """
+  Asks the user for the value of the default key in the optimizer parameter list.
+
+  Keyword arguments:
+  ary -- A string that will be modified to include in default parameter.
+
+  Returns:
+  ary -- The modified version of the input string ary.
+  df -- A binary value to signify the selection of a default optimizer.
+  """
+
   df = 0
   print('Would you like to use the default settings or not?\nDefault: 1\tNot: 0.')
   while True:
@@ -178,32 +221,42 @@ def SetDefault(ary):
 
 
 # Gets the optimizer values needed if default is chosen.
-def getOptimizerDefaultParameters(temp):
+def getOptimizerDefaultParameters(key):
+  """
+  Calls all methods needed for optimizers with only default parameters.
+
+  Keyword arguments:
+  key -- The optimizer key.
+
+  Returns:
+  s -- String of optimizer settings as comma separated values.
+  """
+
   s = ''
-  if(temp==0):
+  if(key==0):
     l = getLearningRate()
     s = l
 
-  elif(temp==1):
+  elif(key==1):
     s = ''
 
-  elif(temp==2):
+  elif(key==2):
     l = getLearningRate()
     s = l
 
-  elif(temp==3):
+  elif(key==3):
     l = getLearningRate()
     s = l
 
-  elif(temp==4):
+  elif(key==4):
     l = getLearningRate()
     m = getMomentum()
     s = l + ',' + m
 
-  elif(temp==5):
+  elif(key==5):
     s = ''
 
-  elif(temp==6):
+  elif(key==6):
     l = getLearningRate()
     s = l
 
@@ -214,44 +267,54 @@ def getOptimizerDefaultParameters(temp):
   return s
 
 
-# Gets the optimizer values needed if default is not chosen.
-def getOptimizerParameters(temp):
+def getOptimizerParameters(key):
+  """
+  Calls the parameter selection methods needed for each optimizer type and returns a string of comma separated
+  values for each optimizer.
+
+  Keyword arguments:
+  key -- The optimizer of choice.
+
+  Returns:
+  s -- The string of optimizer parameter values as a comma separated string.
+  """
+
   s = ''
-  if(temp==0):
+  if(key==0):
     l = getLearningRate()
     s = l
 
-  elif(temp==1):
+  elif(key==1):
     l = getLearningRate()
     r = getRho()
     e = getEpsilon()
     s = l + ',' + r + ',' + e
 
-  elif(temp==2):
+  elif(key==2):
     l = getLearningRate()
     initial = getInitialAccumulatorValue()
     s = l + ',' + initial
 
-  elif(temp==3):
+  elif(key==3):
     l = getLearningRate()
     gsa = getInitialGradientSquaredAccumulatorValue()
     l1 = getL1RegularizationStrength()
     l2 = getL2RegularizationStrength()
     s = l + ',' + gsa + ',' + l1 + ',' + l2
 
-  elif(temp==4):
+  elif(key==4):
     l = getLearningRate()
     m = getMomentum()
     s = l + ',' + m
 
-  elif(temp==5):
+  elif(key==5):
     l = getLearningRate()
     b1 = getBeta1()
     b2 = getBeta2()
     e = getEpsilon()
     s = l + ',' + b1 + ',' + b2 + ',' + e
 
-  elif(temp==6):
+  elif(key==6):
     l = getLearningRate()
     lr = getLearningRatePower()
     a = getInitialAccumulatorValue()
@@ -269,13 +332,19 @@ def getOptimizerParameters(temp):
   return s
 
 
-# Asks the user for the Learning Rate value.
 def getLearningRate():
+  """
+  Asks the user to select the value for the Learning Rate.
+
+  Returns:
+  val -- The value selected by the user.
+  """
+
   val = ''
   print('Now what is the learning rate?\nEnter a float ex. 0.005.')
   while True:
     i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float)):
+    if(isinstance(float(i),float) and (float(i) >0)):
       val = str(i)
       break
   
@@ -287,13 +356,19 @@ def getLearningRate():
   return val
 
 
-# Asks the user for the Rho value.
 def getRho():
+  """
+  Asks the user to select a value for Rho.
+
+  Returns:
+  val -- The value selected by the user.
+  """
+
   val = ''
   print('What value would you like for rho?\nPlease note that this is a float. i.e. 0.01')
   while True:
     i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float)):
+    if(isinstance(float(i),float) and (float(i) >0)):
       val = str(i)
       break
         
@@ -305,14 +380,20 @@ def getRho():
   return val
 
 
-# Asks the user for the Epsilon value.
 def getEpsilon():
+  """
+  Asks the user to set the Epsilon value.
+
+  Returns:
+  val -- The value selected by the user.
+  """
+
   val = ''
   print('What value would you like for epsilon?')
   print('Please note that this is a float. i.e. 0.01')
   while True:
     i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float)):
+    if(isinstance(float(i),float) and (float(i) >0)):
       val = str(i)
       break
     
@@ -324,8 +405,14 @@ def getEpsilon():
   return val
 
 
-# Asks the user for the Initial Accumulator value.
 def getInitialAccumulatorValue():
+  """
+  Asks the user for the Initial Accumulator Value.
+
+  Returns:
+  val -- The value selected by the user.
+  """
+
   val = ''
   print('What value would you like for intial_accumulator_value?')
   print('Please note that this is a float and must be greater than zero. i.e. 0.01')
@@ -343,8 +430,14 @@ def getInitialAccumulatorValue():
   return val
 
 
-# Asks the user for the Gradient Squared Accumulator value.
 def getInitialGradientSquaredAccumulatorValue():
+  """
+  Asks the user to select the value for Initial Gradient Squared Accumulator Value.
+
+  Returns:
+  val -- The value selected by the user.
+  """
+
   val = ''
   print('What value would you like for intial_gradient_squared_accumulator_value?')
   print('Please note that this is a float and must be greater than 0. i.e. 0.01')
@@ -362,8 +455,14 @@ def getInitialGradientSquaredAccumulatorValue():
   return val
 
 
-# Asks the user for the L1 Regularization Strength value.
 def getL1RegularizationStrength():
+  """
+  Asks the user to select a value for the L1 Regularization Strength.
+
+  Returns:
+  val -- The value selected by the user.
+  """
+
   val = ''
   print('What value would you like for l1_regularization_strength?')
   print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
@@ -381,8 +480,14 @@ def getL1RegularizationStrength():
   return val
 
 
-# Asks the user for the L2 Regularization Strength value.
 def getL2RegularizationStrength():
+  """
+  Asks the user to select the value for L2 Regularization Strength.
+
+  Returns:
+  val -- The value selected by the user. 
+  """
+
   val = ''
   print('What value would you like for l2_regularization_strength?')
   print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
@@ -400,8 +505,14 @@ def getL2RegularizationStrength():
   return val
 
 
-# Asks the user for the Beta1 value.
 def getBeta1():
+  """
+  Asks the user to select the Beta1 value.
+
+  Returns:
+  val -- The value selected by the user.
+  """
+
   val = ''
   print('What value would you like for beta1?')
   print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
@@ -421,6 +532,13 @@ def getBeta1():
 
 # Asks the user for the Beta2 value.
 def getBeta2():
+  """
+  Asks the user to select the Beta2 value.
+
+  Returns:
+  val -- The values selected by the user.
+  """
+
   val = ''
   print('What value would you like for beta2?')
   print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
@@ -438,8 +556,14 @@ def getBeta2():
   return val
 
 
-# Asks the user for the Momentum value.
 def getMomentum():
+  """
+  Asks the user for the value to set momentum to.
+
+  Returns:
+  val -- The momentum value selected by the user.
+  """
+
   val = ''
   print('What value would you like for momentum?')
   print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
@@ -456,9 +580,15 @@ def getMomentum():
       
   return val
 
- 
-# Asks the user for the Learning Rate Power value.
+
 def getLearningRatePower():
+  """
+  Asks the user for the value for Learning Rate Power.
+
+  Returns:
+  val -- the value selected by the user for Learning Rate Power.
+  """
+
   val = ''
   print('What value would you like for learning_rate_power?')
   print('Please note that this is a float and must be less than or equal to 0. i.e. -0.5')
@@ -476,8 +606,14 @@ def getLearningRatePower():
   return val
 
 
-# Asks the user for the Decay value.
 def getDecay():
+  """
+  Asks the user to set the decay value.
+
+  Returns:
+  val -- The user selected value for decay.
+  """
+
   val = ''
   print('What value would you like for decay?')
   print('Please note that this is a float and must be less than or equal to 0. i.e. 0.01')

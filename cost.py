@@ -1,27 +1,32 @@
 #!/usr/bin/env python
 
-#=========================================================================#
-#									  #
-# This file holds all the code for choosing the cost function settings,   #
-# and the number of epochs 
-# 									  #
-#=========================================================================#
-
 import sys
 import os
 
 
-# Dictionary of Possible metrics
+# Dictionary of possible cost functions.
 met = {
-        0 : 'RMSE',
-        1 : 'MSE',
-        2 : 'MAE',
-        3 : 'MAPE'
+        0 : 'RMSE: Root Mean Squared Error',
+        1 : 'MSE: Mean Squared Error',
+        2 : 'MAE: Mean Absolute Error',
+        3 : 'MAPE: Mean Absolute Percent Error'
         }
 
 
-# Asks for the input of data for cost metric, and the number of epochs to train over.
 def getMetric():
+  """
+  Calls the methods to choose the cost metric and the number of epochs to train over.
+  
+  Once the cost metric and number of epochs have been chosen a string is returned.
+  This string takes the form of a python list with the data stored in the following
+  format: ['metric','epochs']
+
+  Returns:
+  A string that is valid python code for the creation of a list.
+
+  Example: "[0,500]"
+  """
+
   ary = '['
   e = ']'
   
@@ -32,8 +37,17 @@ def getMetric():
   return ary
 
 
-# Asks the user for the metric to optimize by.
 def ChooseMetric(ary):
+  """
+  Asks the user to choose a cost function to optimize by, and returns the value chosen. 
+
+  Keyword arguments:
+  ary --  A string that the metric is concatenated on to.
+
+  Returns:
+  ary -- The inputted string with the metric concatenated onto it.
+  """
+  
   print('What metric from the list do you want to optimize by?\n'+str(met))
   print('Please enter the integer corresponding to the correct metric.')
   while True:
@@ -50,12 +64,22 @@ def ChooseMetric(ary):
   return ary
 
 
-# Asks the user for the number of iterations to train over.
 def getEpoch(ary):
+  """
+  Gets the number of epochs to train over from the user and returns the modified 
+  string ary.
+
+  Keyword arguments:
+  ary -- A string that the number of epochs is concatenated on to.
+
+  Returns:
+  ary -- The inputted string with number of epochs concatenated onto it.
+  """
+
   print('Finally how many epochs should the model be trained over?')
   while True:
     i = sys.stdin.readline().strip()
-    if(i.isdigit()):
+    if(i.isdigit() and (int(i)>0)):
       ary = ary + str(i)
       break
   

@@ -212,8 +212,11 @@ def getActivationFunction(cnt,cns):
   """
 
   n = 0
-  print('For layer '+str(cnt+1)+'.\n'+str(act))
-  print('That list is the activation functions supported what is this layer made of?')
+  print('For layer '+str(cnt+1)+'.')
+  print('Below is a list of the activation functions supported. Choose one.') 
+  for k in act.keys():
+    print(str(k)+": "+str(act[k]))
+
   while True:
     n = sys.stdin.readline().strip()
     if((n.isdigit()) and (-1 < int(n) < 6)):

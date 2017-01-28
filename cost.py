@@ -48,8 +48,10 @@ def ChooseMetric(ary):
   ary -- The inputted string with the metric concatenated onto it.
   """
   
-  print('What metric from the list do you want to optimize by?\n'+str(met))
-  print('Please enter the integer corresponding to the correct metric.')
+  print('What metric from the list below do you want to optimize by?')
+  for k in met.keys():
+    print(str(k)+": "+str(met[k]))
+
   while True:
     i = sys.stdin.readline().strip()
     if(i.isdigit() and (-1<int(i)<4)):

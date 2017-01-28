@@ -175,8 +175,10 @@ def ChooseOptimizer(ary):
 
   while True:
     os.system('cls' if os.name == 'nt' else 'clear')
-    print('What Optimizer from the list do you want to optimize by?\n'+str(opt))
-    print('Please enter the integer corresponding to the correct Optimizer.')
+    print('What Optimizer from the list below do you want to optimize with?')
+    for k in opt.keys():
+      print(str(k)+": "+str(opt[k]))
+
     i = sys.stdin.readline().strip()
     if(i.isdigit() and (-1<int(i)<8)):
       key = int(i)

@@ -52,7 +52,11 @@ conditions = {
   1: (lambda i: isinstance(float(i),float) and (float(i) >= 0)),
   2: (lambda i: isinstance(float(i),float) and (float(i) <= 0))
 }
-			
+
+defaults = {
+  0: [0,2,3,6,7],
+  1: [1,5]
+}
 
 def getParameter(key):
   """
@@ -95,38 +99,18 @@ def OptimizerDefaultString(param):
   """
 
   o = '  '
-  if(param[1][0]==0):
+  if(param[1][0] in defaults[0]):
     o = o + 'optimizer = tf.train.'+opt[param[1][0]]
     o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
 
-  elif(param[1][0]==1):
+  elif(param[1][0] in defaults[1]):
     o = o + 'optimizer = tf.train.'+opt[param[1][0]]
     o = o + 'Optimizer()\n'
-      
-  elif(param[1][0]==2):
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
-      
-  elif(param[1][0]==3):
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
-      
-  elif(param[1][0]==4):
+
+  else:
     o = o + 'optimizer = tf.train.'+opt[param[1][0]]
     o = o + 'Optimizer(learning_rate='+str(param[1][2])
     o = o + ', momentum='+str(param[1][3])+')\n'
-      
-  elif(param[1][0]==5):
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer()\n'
-      
-  elif(param[1][0]==6):
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
-      
-  else:
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
     
   return o
 
@@ -301,36 +285,17 @@ def getOptimizerDefaultParameters(key):
   """
 
   s = ''
-  if(key==0):
-    l = getParameter(0)
-    s = l
-
-  elif(key==1):
+  if(key in defaults[1]):
     s = ''
 
-  elif(key==2):
-    l = getParameter(0)
-    s = l
-
-  elif(key==3):
-    l = getParameter(0)
-    s = l
-
-  elif(key==4):
-    l = getParameter(0)
-    m = getParameter(1)
-    s = l + ',' + m
-
-  elif(key==5):
-    s = ''
-
-  elif(key==6):
+  elif(key in defaults[0]):
     l = getParameter(0)
     s = l
 
   else:
     l = getParameter(0)
-    s = l
+    m = getParameter(1)
+    s = l + ',' + m
 
   return s
 
@@ -348,42 +313,36 @@ def getOptimizerParameters(key):
   """
 
   s = ''
+  l = getParameter(0)
   if(key==0):
-    l = getParameter(0)
     s = l
 
   elif(key==1):
-    l = getParameter(0)
     r = getParameter(2)
     e = getParameter(3)
     s = l + ',' + r + ',' + e
 
   elif(key==2):
-    l = getParameter(0)
     initial = getParameter(4)
     s = l + ',' + initial
 
   elif(key==3):
-    l = getParameter(0)
     gsa = getParameter(5)
     l1 = getParameter(6)
     l2 = getParameter(7)
     s = l + ',' + gsa + ',' + l1 + ',' + l2
 
   elif(key==4):
-    l = getParameter(0)
     m = getParameter(1)
     s = l + ',' + m
 
   elif(key==5):
-    l = getParameter(0)
     b1 = getParameter(8)
     b2 = getParameter(9)
     e = getParameter(3)
     s = l + ',' + b1 + ',' + b2 + ',' + e
 
   elif(key==6):
-    l = getParameter(0)
     lr = getParameter(10)
     a = getParameter(4)
     l1 = getParameter(6)
@@ -391,11 +350,11 @@ def getOptimizerParameters(key):
     s = l + ',' + lr + ',' + a + ',' + l1 + ',' + l2
 
   else:
-    l = getParameter(0)
     d = getParameter(11)
     m = getParameter(1)
     e = getParameter(3)
     s = l + ',' + d + ',' + m + ',' + e
 
   return s
+
 

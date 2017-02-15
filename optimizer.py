@@ -6,15 +6,81 @@ import os
 
 # Dictionary of possible optimization methods.
 opt = {
-        0 : 'GradientDescent',
-        1 : 'Adadelta',
-        2 : 'Adagrad',
-        3 : 'AdagradDA',
-        4 : 'Momentum',
-        5 : 'Adam',
-        6 : 'Ftrl',
-        7 : 'RMSProp'
-        }
+  0 : 'GradientDescent',
+  1 : 'Adadelta',
+  2 : 'Adagrad',
+  3 : 'AdagradDA',
+  4 : 'Momentum',
+  5 : 'Adam',
+  6 : 'Ftrl',
+  7 : 'RMSProp'
+}
+
+# Dictionary of parameters and the associated keys to the example, invalid and conditions dictionaries.
+params = {
+  0: 'LearningRate,0',
+  1: 'Momentum,1',
+  2: 'Rho,0',
+  3: 'Epsilon,0',
+  4: 'InitialAccumulatorValue,0',
+  5: 'InitialGradientSquaredAccumulatorValue,0',
+  6: 'L1RegularizationStrength,1',
+  7: 'L2RegularizationStrength,1',
+  8: 'Beta1,1',
+  9: 'Beta2,1',
+  10: 'LearningRatePower,2',
+  11: 'Decay,1'
+}
+		
+# Dictionary of examples for the user to know what data to enter.
+example = {
+  0: 'a float greater than 0.0 ex. 0.05.',
+  1: 'a float and must be greater than or equal to 0. i.e. 0.01.',
+  2: 'a float and must be less than or equal to 0. i.e. -0.5.'
+}
+
+# Dictionary of messages to give the user on invalid data entry.
+invalid = {
+  0: 'not greater than zero',
+  1: 'less than zero',
+  2: 'greater than zero'
+}
+
+# Dictionary of lambda expressions for the conditional expressions.
+conditions = {
+  0: (lambda i: isinstance(float(i),float) and (float(i) > 0)),
+  1: (lambda i: isinstance(float(i),float) and (float(i) >= 0)),
+  2: (lambda i: isinstance(float(i),float) and (float(i) <= 0))
+}
+			
+
+def getParameter(key):
+  """
+  Asks the user to select the value for a parameter.
+
+  Keyword arguments:
+  key -- An integer that corresponds to a key in the param dictonary.
+
+  Returns:
+  val -- The value selected by the user.
+  """
+  
+  l = params[key].split(',')
+  val = ''
+  print('What value would you like for '+l[0]+'?')
+  print('Please note that this is '+example[int(l[1])])
+  i = sys.stdin.readline().strip()
+  while True:
+    if(conditions[int(l[1])](i)):
+      val = str(i)
+      break
+        
+    else:
+      print('Sorry that was either  not a float or was '+invalid[int(l[1])]+', please try again.')
+    i = sys.stdin.readline().strip()
+  os.system('cls' if os.name == 'nt' else 'clear')
+      
+  return val
 
 
 def OptimizerDefaultString(param):
@@ -126,7 +192,7 @@ def OptimizerString(param):
     o = o + ', momentum='+str(param[1][4])
     o = o + ', epsilon='+str(param[1][5])+')\n'
     
-    return o
+  return o
 
 
 def getOptimizer():
@@ -207,8 +273,8 @@ def SetDefault(ary):
 
   df = 0
   print('Would you like to use the default settings or not?\nDefault: 1\tNot: 0.')
+  i = sys.stdin.readline().strip()
   while True:
-    i = sys.stdin.readline().strip()
     if(i.isdigit() and (-1<int(i)<2)):
       df = int(i)
       ary = ary + str(i) + ','
@@ -236,34 +302,34 @@ def getOptimizerDefaultParameters(key):
 
   s = ''
   if(key==0):
-    l = getLearningRate()
+    l = getParameter(0)
     s = l
 
   elif(key==1):
     s = ''
 
   elif(key==2):
-    l = getLearningRate()
+    l = getParameter(0)
     s = l
 
   elif(key==3):
-    l = getLearningRate()
+    l = getParameter(0)
     s = l
 
   elif(key==4):
-    l = getLearningRate()
-    m = getMomentum()
+    l = getParameter(0)
+    m = getParameter(1)
     s = l + ',' + m
 
   elif(key==5):
     s = ''
 
   elif(key==6):
-    l = getLearningRate()
+    l = getParameter(0)
     s = l
 
   else:
-    l = getLearningRate()
+    l = getParameter(0)
     s = l
 
   return s
@@ -283,350 +349,53 @@ def getOptimizerParameters(key):
 
   s = ''
   if(key==0):
-    l = getLearningRate()
+    l = getParameter(0)
     s = l
 
   elif(key==1):
-    l = getLearningRate()
-    r = getRho()
-    e = getEpsilon()
+    l = getParameter(0)
+    r = getParameter(2)
+    e = getParameter(3)
     s = l + ',' + r + ',' + e
 
   elif(key==2):
-    l = getLearningRate()
-    initial = getInitialAccumulatorValue()
+    l = getParameter(0)
+    initial = getParameter(4)
     s = l + ',' + initial
 
   elif(key==3):
-    l = getLearningRate()
-    gsa = getInitialGradientSquaredAccumulatorValue()
-    l1 = getL1RegularizationStrength()
-    l2 = getL2RegularizationStrength()
+    l = getParameter(0)
+    gsa = getParameter(5)
+    l1 = getParameter(6)
+    l2 = getParameter(7)
     s = l + ',' + gsa + ',' + l1 + ',' + l2
 
   elif(key==4):
-    l = getLearningRate()
-    m = getMomentum()
+    l = getParameter(0)
+    m = getParameter(1)
     s = l + ',' + m
 
   elif(key==5):
-    l = getLearningRate()
-    b1 = getBeta1()
-    b2 = getBeta2()
-    e = getEpsilon()
+    l = getParameter(0)
+    b1 = getParameter(8)
+    b2 = getParameter(9)
+    e = getParameter(3)
     s = l + ',' + b1 + ',' + b2 + ',' + e
 
   elif(key==6):
-    l = getLearningRate()
-    lr = getLearningRatePower()
-    a = getInitialAccumulatorValue()
-    l1 = getL1RegularizationStrength()
-    l2 = getL2RegularizationStrength()
+    l = getParameter(0)
+    lr = getParameter(10)
+    a = getParameter(4)
+    l1 = getParameter(6)
+    l2 = getParameter(7)
     s = l + ',' + lr + ',' + a + ',' + l1 + ',' + l2
 
   else:
-    l = getLearningRate()
-    d = getDecay()
-    m = getMomentum()
-    e = getEpsilon()
+    l = getParameter(0)
+    d = getParameter(11)
+    m = getParameter(1)
+    e = getParameter(3)
     s = l + ',' + d + ',' + m + ',' + e
 
   return s
 
-
-def getLearningRate():
-  """
-  Asks the user to select the value for the Learning Rate.
-
-  Returns:
-  val -- The value selected by the user.
-  """
-
-  val = ''
-  print('Now what is the learning rate?\nEnter a float ex. 0.005.')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float) and (float(i) >0)):
-      val = str(i)
-      break
-  
-    else:
-      print('Sorry that was not an a float, please try again.')
-    i = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-
-  return val
-
-
-def getRho():
-  """
-  Asks the user to select a value for Rho.
-
-  Returns:
-  val -- The value selected by the user.
-  """
-
-  val = ''
-  print('What value would you like for rho?\nPlease note that this is a float. i.e. 0.01')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float) and (float(i) >0)):
-      val = str(i)
-      break
-        
-    else:
-      print('Sorry that was not an a float, please try again.')
-    i = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return val
-
-
-def getEpsilon():
-  """
-  Asks the user to set the Epsilon value.
-
-  Returns:
-  val -- The value selected by the user.
-  """
-
-  val = ''
-  print('What value would you like for epsilon?')
-  print('Please note that this is a float. i.e. 0.01')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float) and (float(i) >0)):
-      val = str(i)
-      break
-    
-    else:
-      print('Sorry that was not an a float, please try again.')
-    i = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-
-  return val
-
-
-def getInitialAccumulatorValue():
-  """
-  Asks the user for the Initial Accumulator Value.
-
-  Returns:
-  val -- The value selected by the user.
-  """
-
-  val = ''
-  print('What value would you like for intial_accumulator_value?')
-  print('Please note that this is a float and must be greater than zero. i.e. 0.01')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float) and float(i) > 0.0):
-      val = str(i)
-      break
-        
-    else:
-      print('Sorry that was either not an a float, or not greater than 0, please try again.')
-    i = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-    
-  return val
-
-
-def getInitialGradientSquaredAccumulatorValue():
-  """
-  Asks the user to select the value for Initial Gradient Squared Accumulator Value.
-
-  Returns:
-  val -- The value selected by the user.
-  """
-
-  val = ''
-  print('What value would you like for intial_gradient_squared_accumulator_value?')
-  print('Please note that this is a float and must be greater than 0. i.e. 0.01')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float) and float(i) > 0.0):
-      val = str(i)
-      break
-        
-    else:
-      print('Sorry that was either not an a float, or not greater than 0, please try again.')
-    i = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return val
-
-
-def getL1RegularizationStrength():
-  """
-  Asks the user to select a value for the L1 Regularization Strength.
-
-  Returns:
-  val -- The value selected by the user.
-  """
-
-  val = ''
-  print('What value would you like for l1_regularization_strength?')
-  print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float) and float(i) >= 0.0):
-      val = str(i)
-      break
-        
-    else:
-      print('Sorry that was either not an a float, or less than 0, please try again.')
-    i = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return val
-
-
-def getL2RegularizationStrength():
-  """
-  Asks the user to select the value for L2 Regularization Strength.
-
-  Returns:
-  val -- The value selected by the user. 
-  """
-
-  val = ''
-  print('What value would you like for l2_regularization_strength?')
-  print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float) and float(i) >= 0.0):
-      val = str(i)
-      break
-  
-    else:
-      print('Sorry that was either not an a float, or less than 0, please try again.')
-    i = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return val
-
-
-def getBeta1():
-  """
-  Asks the user to select the Beta1 value.
-
-  Returns:
-  val -- The value selected by the user.
-  """
-
-  val = ''
-  print('What value would you like for beta1?')
-  print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float) and float(i) >= 0.0):
-      val = str(i)
-      break
-        
-    else:
-      print('Sorry that was either not an a float, or less than 0, please try again.')
-    i = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return val
-    
-
-# Asks the user for the Beta2 value.
-def getBeta2():
-  """
-  Asks the user to select the Beta2 value.
-
-  Returns:
-  val -- The values selected by the user.
-  """
-
-  val = ''
-  print('What value would you like for beta2?')
-  print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float) and float(i) >= 0.0):
-      val = str(i)
-      break
-  
-    else:
-      print('Sorry that was either not an a float, or less than 0, please try again.')
-    i = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return val
-
-
-def getMomentum():
-  """
-  Asks the user for the value to set momentum to.
-
-  Returns:
-  val -- The momentum value selected by the user.
-  """
-
-  val = ''
-  print('What value would you like for momentum?')
-  print('Please note that this is a float and must be greater than or equal to 0. i.e. 0.01')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float) and float(i) >= 0.0):
-      val = str(i)
-      break
-        
-    else:
-      print('Sorry that was either not an a float, or less than 0, please try again.')
-    i = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return val
-
-
-def getLearningRatePower():
-  """
-  Asks the user for the value for Learning Rate Power.
-
-  Returns:
-  val -- the value selected by the user for Learning Rate Power.
-  """
-
-  val = ''
-  print('What value would you like for learning_rate_power?')
-  print('Please note that this is a float and must be less than or equal to 0. i.e. -0.5')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float) and float(i) <= 0.0):
-      val = str(i)
-      break
-        
-    else:
-      print('Sorry that was either not an a float, or greater than 0, please try again.')
-    i = sys.stdin.readline().strip()
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return val
-
-
-def getDecay():
-  """
-  Asks the user to set the decay value.
-
-  Returns:
-  val -- The user selected value for decay.
-  """
-
-  val = ''
-  print('What value would you like for decay?')
-  print('Please note that this is a float and must be less than or equal to 0. i.e. 0.01')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(isinstance(float(i),float) and float(i) >= 0.0):
-      val = str(i)
-      break
-  
-    else:
-      print('Sorry that was either not an a float, or less than 0, please try again.')
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return val

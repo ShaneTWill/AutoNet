@@ -16,6 +16,11 @@ act = {
         }
 
 
+io = {
+      0 : "How many inputs are there?",
+      1 : "How many outputs are there?\nIf this is a classification model that uses one-hot encoding enter number of possibile values."
+      }
+
 def getModelBasics():
   """
   Calls methods to obtain the basics of a predictive model:
@@ -25,72 +30,50 @@ def getModelBasics():
   A list of model parameters and the model type.
   """
 
-  t = ''
+  t = '\'float64\''
   n = 0
   o = 0
   m = ''
-  t , m = getModelType()
-  n = getInputCount()
-  o = getOutputCount()
+  m = getModelType()
+  n = getIOCounts(0)
+  o = getIOCounts(1)
  
   return [[t,n]],[[t,o]],m
 
 
-def getInputCount():
+def getIOCounts(key):
   """
-  Asks the user for the number of inputs in the model.
-
+  Asks the user for the number of inputs or outputs in the model.
+  
+  Keyword Arugments:
+  key -- A value that corresponds to the parameter that is being returned.
+  0 for input and 1 for output.
+  
   Returns:
-  n -- The number of inputs selected by the user.
+  p -- The number of inputs, or outputs, selected by the user.
   """
-
-  n = ''
-  print('Now how many inputs are there?\nPlease enter an integer like 1.')
+  p = ''
+  
   while True:
+    print(io[key])
     i = sys.stdin.readline().strip()
-    if(i.isdigit()):
-      n = i
+    if(i.isdigit() and int(i) > 0):
+      p = i
       break
         
     else:
-      print('Sorry that is not an option try again.')
+      print('Sorry that was either not a number or less than 1. try again')
 
   os.system('cls' if os.name == 'nt' else 'clear')
       
-  return n
-
-
-def getOutputCount():
-  """
-  Asks the user for the number of outputs in the model.
-
-  Returns:
-  o -- The number of outputs selected by the user.
-  """
-
-  o = ''
-  print('How many outputs are there?')
-  print('If this is a classification model that uses one-hot encoding enter number of possibile values.')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(i.isdigit()):
-      o = i
-      break
-        
-    else:
-      print('Sorry that is not an option try again.')
-
-  os.system('cls' if os.name == 'nt' else 'clear')
-
-  return o
-
+  return p
+  
 
 def getModelType():
   """
   Asks the user for the number of outputs in the model.
 
   Returns:
-  t -- The data type for the outputs for the model.
   m -- The model type selected by the user.
   """
 
@@ -100,12 +83,10 @@ def getModelType():
   while True:
     i = sys.stdin.readline().strip()
     if(i=='R'):
-      t = '\'float64\''
       m = i
       break
     
     elif(i=='C'):
-      t = '\'float64\''
       m = i
       break
         
@@ -114,7 +95,7 @@ def getModelType():
 
   os.system('cls' if os.name == 'nt' else 'clear')
       
-  return t,m
+  return m
 
 
 def getHiddenLayers():
@@ -177,7 +158,7 @@ def getNumberofNodes(cnt,cns):
 
   Keyword arguments:
   cnt -- The layer number.
-  cns -- String of layer parameters for formatted to create a python list.
+  cns -- String of layer parameters that will be used to create a python list.
 
   Returns:
   cns -- A string that represents part of a python list with the number of nodes.
@@ -187,12 +168,12 @@ def getNumberofNodes(cnt,cns):
   print('For layer '+str(cnt+1)+'.\nHow many nodes are there?')
   while True:
     n = sys.stdin.readline().strip()
-    if(n.isdigit()):
+    if(n.isdigit() and int(n) > 0):
       cns = '['+str(n)+','
       break
         
     else:
-      print('Sorry that was either not an integer, or an option, please try again.')
+      print('Sorry that was either not an integer, or less than 1.')
       n = sys.stdin.readline().strip()
   os.system('cls' if os.name == 'nt' else 'clear')
             
@@ -205,7 +186,7 @@ def getActivationFunction(cnt,cns):
 
   Keyword arguments:
   cnt -- The layer number.
-  cns -- String of layer parameters for formatted to create a python list.
+  cns -- String of layer parameters that will be used to create a python list.
 
   Returns:
   cns -- The data type for the outputs for the model.
@@ -224,7 +205,7 @@ def getActivationFunction(cnt,cns):
       break
         
     else:
-      print('Sorry that was not an integer please try again.')
+      print('Sorry that was not an option please try again.')
   os.system('cls' if os.name == 'nt' else 'clear')
     
   return cns

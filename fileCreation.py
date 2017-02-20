@@ -242,7 +242,7 @@ def CreateSession(epchnum,mdlname):
 
   sess = 'with tf.Session() as sess:\n    '
   sess = sess + 'sess.run(init)\n    '
-  sess = sess + 'for epoch in xrange(int('+str(epchnum[0][1])+')):\n      '
+  sess = sess + 'for epoch in range(int('+str(epchnum[0][1])+')):\n      '
   sess = sess + '_,c = sess.run([opt,cost],feed_dict={X:x_,Y:y_})\n      '
   sess = sess + 'if(epoch % 100 ==0):\n        '
   sess = sess + 'saver.save(sess,\''+mdlname+'.ckpt\',global_step=epoch)\n        '

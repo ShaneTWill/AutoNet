@@ -99,16 +99,14 @@ def OptimizerDefaultString(param):
   """
 
   o = '  '
-  if(param[1][0] in defaults[0]):
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+  o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+  if(param[1][0] in defaults[1]):
+    o = o + 'Optimizer()\n'
+  
+  elif(param[1][0] in defaults[0]):
     o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
 
-  elif(param[1][0] in defaults[1]):
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer()\n'
-
   else:
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
     o = o + 'Optimizer(learning_rate='+str(param[1][2])
     o = o + ', momentum='+str(param[1][3])+')\n'
     
@@ -127,51 +125,39 @@ def OptimizerString(param):
   """
 
   o = '  '
+  o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+  o = o + 'Optimizer(learning_rate='+str(param[1][2])
+  
   if(param[1][0]==0):
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
+    o = o + ')\n'
       
   elif(param[1][0]==1):
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])
     o = o + ', rho='+str(param[1][3])
     o = o + ', epsilon='+str(param[1][4])+')\n'
       
   elif(param[1][0]==2):
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])
     o = o + ', initial_accumulator_value='+str(param[1][3])+')\n'
       
   elif(param[1][0]==3):
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])
     o = o + ', initial_gradient_squared_accumulator_value='+str(param[1][3])
     o = o + ', l1_regularization_strength='+str(param[1][4])
     o = o + ', l2_regularization_strength='+str(param[1][5])+')\n'
       
   elif(param[1][0]==4):
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])
     o = o + ', momentum='+str(param[1][3])+')\n'
       
   elif(param[1][0]==5):
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])
     o = o + ', beta1='+str(param[1][3])
     o = o + ', beta2='+str(param[1][4])
     o = o + ', epsilon='+str(param[1][5])+')\n'
       
   elif(param[1][0]==6):
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])
     o = o + ', learning_rate_power='+str(param[1][3])
     o = o + ', initial_accumulator_value='+str(param[1][4])
     o = o + ', l1_regularization_strength='+str(param[1][5])
     o = o + ', l2_regularization_strength='+str(param[1][6])+')\n'
       
   else:
-    o = o + 'optimizer = tf.train.'+opt[param[1][0]]
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])
     o = o + ', decay='+str(param[1][3])
     o = o + ', momentum='+str(param[1][4])
     o = o + ', epsilon='+str(param[1][5])+')\n'

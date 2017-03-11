@@ -4,6 +4,6 @@ This is a project that I am working on for the automated creation of neural netw
  
 Dependecies:
 
-The only dependencies that exist are those needed to run tensorflow. For the list of all Dependcies go to the tensorflow website here:(https://www.tensorflow.org/install/)
+The only dependencies that exist are those needed to run tensorflow. For the list of all Dependcies go to the tensorflow website [here](https://www.tensorflow.org/install/)
 
 

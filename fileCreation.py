@@ -155,8 +155,7 @@ def CreateNetwork(struct,mdlname,typ,inp,ou):
 
   net = 'def '+str(mdlname)+'(x):\n\n'
   lay = len(struct)+1  
-  i=0
-  while(i < (len(struct))+1):
+  for i in range(len(struct)+1):
     if(i ==len(struct) and len(struct)!=0):
       net = net + CreateLayer(prvnum=struct[i-1][0],
                               nodes=ou[0][1],
@@ -189,8 +188,7 @@ def CreateNetwork(struct,mdlname,typ,inp,ou):
                               nlay=len(struct),
                               m=typ)
 
-    i+=1
-      
+
   net = net + '\n  return out\n\n\n'
     
   return net
@@ -290,50 +288,47 @@ def CreateModel(x,y,ty,hidden,learn,filename,modelname):
   filename -- Name of the file.
   modelname -- Name of the model
   """
-
-  fl = str(filename)+'.py'
-  f = open(fl,'w')
-  f.write(header)
-  [f.write('\n') for _ in range(3)]
-  f.write(CreateDocString(struct=hidden,inp=x,out=y,t=ty))
-  [f.write('\n') for _ in range(3)]
-  f.write(im)
-  [f.write('\n') for _ in range(3)]
-  f.write('#')
-  [f.write('=') for _ in range(50)]
-  f.write('\n')
-  f.write('# Reserve memory for Inputs and outputs.\n#')
-  [f.write('=') for _ in range(50)]
-  f.write('\n\n')
-  i,o = CreatePlaceholders(inp=x,out=y)
-  f.write(i)
-  f.write(o)
-  [f.write('\n') for _ in range(2)]
-  f.write('#')
-  [f.write('=') for _ in range(50)]
-  f.write('\n')
-  f.write('# Neural Network\n#')
-  [f.write('=') for _ in range(50)]
-  f.write('\n\n')
-  f.write(CreateNetwork(struct=hidden,mdlname=modelname,typ=ty,inp=x,ou=y))
-  f.write('#')
-  [f.write('=') for _ in range(50)]
-  f.write('\n')
-  f.write('# Cost Function\n#')
-  [f.write('=') for _ in range(50)]
-  f.write('\n\n')
-  f.write(CreateCost(lrn=learn))
-  f.write('#')
-  [f.write('=') for _ in range(50)]
-  f.write('\n')
-  f.write('# Optimizer Function\n#')
-  [f.write('=') for _ in range(50)]
-  f.write('\n\n')
-  f.write(CreateOptimizer(learn))
-  [f.write('\n') for _ in range(3)]
-  f.write(CreateTrainer(mdl=modelname,lrn=learn))
-  [f.write('\n') for _ in range(3)]
-  f.close()
+  with open(str(filename)+'.py','w') as f:
+      f.write(header)
+      [f.write('\n') for _ in range(3)]
+      f.write(CreateDocString(struct=hidden,inp=x,out=y,t=ty))
+      [f.write('\n') for _ in range(3)]
+      f.write(im)
+      [f.write('\n') for _ in range(3)]
+      f.write('#')
+      [f.write('=') for _ in range(50)]
+      f.write('\n')
+      f.write('# Reserve memory for Inputs and outputs.\n#')
+      [f.write('=') for _ in range(50)]
+      f.write('\n\n')
+      i,o = CreatePlaceholders(inp=x,out=y)
+      f.write(i)
+      f.write(o)
+      [f.write('\n') for _ in range(2)]
+      f.write('#')
+      [f.write('=') for _ in range(50)]
+      f.write('\n')
+      f.write('# Neural Network\n#')
+      [f.write('=') for _ in range(50)]
+      f.write('\n\n')
+      f.write(CreateNetwork(struct=hidden,mdlname=modelname,typ=ty,inp=x,ou=y))
+      f.write('#')
+      [f.write('=') for _ in range(50)]
+      f.write('\n')
+      f.write('# Cost Function\n#')
+      [f.write('=') for _ in range(50)]
+      f.write('\n\n')
+      f.write(CreateCost(lrn=learn))
+      f.write('#')
+      [f.write('=') for _ in range(50)]
+      f.write('\n')
+      f.write('# Optimizer Function\n#')
+      [f.write('=') for _ in range(50)]
+      f.write('\n\n')
+      f.write(CreateOptimizer(learn))
+      [f.write('\n') for _ in range(3)]
+      f.write(CreateTrainer(mdl=modelname,lrn=learn))
+      [f.write('\n') for _ in range(3)]
 
 
 def CreateTrainer(mdl,lrn):

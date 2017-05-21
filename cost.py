@@ -39,7 +39,7 @@ def getMetric():
   format: ['metric','epochs']
 
   Returns:
-  A string that is valid python code for the creation of a list.
+    A string that is valid python code for the creation of a list.
 
   Example: "[0,500]"
   """
@@ -56,14 +56,16 @@ def getMetric():
 
 def getData(code,ary):
   """
-    Gets the number of epochs to train over from the user and returns the modified 
-    string ary.
+    Uses data that the user inputs and and returns the modified 
+    string ary. For the creation of a list of values.
 
     Keyword arguments:
+    code -- An integer that is used to pull the correct data from the dictionaries 
+            and perform flow control.
     ary -- A string that the number of epochs is concatenated on to.
 
     Returns:
-    ary -- The inputted string with number of epochs concatenated onto it.
+    ary -- The inputted string with the data concatenated onto it.
   """
   
   print(prompts[code])

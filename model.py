@@ -15,7 +15,7 @@ act = {
         5 : 'softsign'
         }
 
-
+# Dictionary of input and output prompts
 io = {
       0 : "How many inputs are there?",
       1 : "How many outputs are there?\nIf this is a classification model that uses one-hot encoding enter number of possibile values."
@@ -104,7 +104,7 @@ def getHiddenLayers():
   activation function for each layer.
 
   Returns:
-  e -- A python list of lists with each sub-list containing a parameters for a layer in the model.
+  e -- A python list of lists with each sub-list containing the parameters for a layer in the model.
   """
 
   ary = '['
@@ -137,7 +137,7 @@ def getNumberOfLayers():
   Asks the user for the number of layers in the model.
 
   Returns:
-  i -- The data type for the number of layers in the model.
+  i -- The number of layers in the model.
   """
 
   print('Now how many hidden layers  are there?')

@@ -3,59 +3,59 @@
 import sys
 import os
 
-
 # Dictionary of possible optimization methods.
-opt = {
-  0 : 'GradientDescent',
-  1 : 'Adadelta',
-  2 : 'Adagrad',
-  3 : 'AdagradDA',
-  4 : 'Momentum',
-  5 : 'Adam',
-  6 : 'Ftrl',
-  7 : 'RMSProp'
+optimizers = {
+  0 : 'GradientDescent'
+  ,1 : 'Adadelta'
+  ,2 : 'Adagrad'
+  ,3 : 'AdagradDA'
+  ,4 : 'Momentum'
+  ,5 : 'Adam'
+  ,6 : 'Ftrl'
+  ,7 : 'RMSProp'
 }
 
 # Dictionary of parameters and the associated keys to the example, invalid and conditions dictionaries.
-params = {
-  0: 'LearningRate,0',
-  1: 'Momentum,1',
-  2: 'Rho,0',
-  3: 'Epsilon,0',
-  4: 'InitialAccumulatorValue,0',
-  5: 'InitialGradientSquaredAccumulatorValue,0',
-  6: 'L1RegularizationStrength,1',
-  7: 'L2RegularizationStrength,1',
-  8: 'Beta1,1',
-  9: 'Beta2,1',
-  10: 'LearningRatePower,2',
-  11: 'Decay,1'
+parameters = {
+  0: 'LearningRate,0'
+  ,1: 'Momentum,1'
+  ,2: 'Rho,0'
+  ,3: 'Epsilon,0'
+  ,4: 'InitialAccumulatorValue,0'
+  ,5: 'InitialGradientSquaredAccumulatorValue,0'
+  ,6: 'L1RegularizationStrength,1'
+  ,7: 'L2RegularizationStrength,1'
+  ,8: 'Beta1,1'
+  ,9: 'Beta2,1'
+  ,10: 'LearningRatePower,2'
+  ,11: 'Decay,1'
 }
 		
 # Dictionary of examples for the user to know what data to enter.
 example = {
-  0: 'a float greater than 0.0 ex. 0.05.',
-  1: 'a float and must be greater than or equal to 0. i.e. 0.01.',
-  2: 'a float and must be less than or equal to 0. i.e. -0.5.'
+  0: 'a float greater than 0.0 ex. 0.05.'
+  ,1: 'a float and must be greater than or equal to 0. i.e. 0.01.'
+  ,2: 'a float and must be less than or equal to 0. i.e. -0.5.'
 }
 
 # Dictionary of messages to give the user on invalid data entry.
 invalid = {
-  0: 'not greater than zero',
-  1: 'less than zero',
-  2: 'greater than zero'
+  0: 'not greater than zero'
+  ,1: 'less than zero'
+  ,2: 'greater than zero'
 }
 
 # Dictionary of lambda expressions for the conditional expressions.
 conditions = {
-  0: (lambda i: isinstance(float(i),float) and (float(i) > 0)),
-  1: (lambda i: isinstance(float(i),float) and (float(i) >= 0)),
-  2: (lambda i: isinstance(float(i),float) and (float(i) <= 0))
+  0: (lambda i: isinstance(float(i),float) and (float(i) > 0))
+  ,1: (lambda i: isinstance(float(i),float) and (float(i) >= 0))
+  ,2: (lambda i: isinstance(float(i),float) and (float(i) <= 0))
 }
 
+# Sets used for flow control when you choose to use the default parameters.
 defaults = {
-  0: [0,2,3,6,7],
-  1: [1,5]
+  0: {0,2,3,6,7}
+  ,1: {1,5}
 }
 
 def getParameter(key):
@@ -69,7 +69,7 @@ def getParameter(key):
   val -- The value selected by the user.
   """
   
-  l = params[key].split(',')
+  l = parameters[key].split(',')
   val = ''
   print('What value would you like for '+l[0]+'?')
   print('Please note that this is '+example[int(l[1])])
@@ -99,7 +99,7 @@ def OptimizerDefaultString(param):
   """
 
   o = '  '
-  o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+  o = o + 'optimizer = tf.train.'+optimizers[param[1][0]]
   if(param[1][0] in defaults[1]):
     o = o + 'Optimizer()\n'
   
@@ -125,7 +125,7 @@ def OptimizerString(param):
   """
 
   o = '  '
-  o = o + 'optimizer = tf.train.'+opt[param[1][0]]
+  o = o + 'optimizer = tf.train.'+optimizers[param[1][0]]
   o = o + 'Optimizer(learning_rate='+str(param[1][2])
   
   if(param[1][0]==0):
@@ -212,8 +212,8 @@ def ChooseOptimizer(ary):
   while True:
     os.system('cls' if os.name == 'nt' else 'clear')
     print('What Optimizer from the list below do you want to optimize with?')
-    for k in opt.keys():
-      print(str(k)+": "+str(opt[k]))
+    for key,value in optimizers.items():
+      print('{}: {}'.format(key,value))
 
     i = sys.stdin.readline().strip()
     if(i.isdigit() and (-1<int(i)<8)):
@@ -258,7 +258,6 @@ def SetDefault(ary):
   return ary,df
 
 
-# Gets the optimizer values needed if default is chosen.
 def getOptimizerDefaultParameters(key):
   """
   Calls all methods needed for optimizers with only default parameters.

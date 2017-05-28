@@ -89,7 +89,7 @@ def CreateLayer(prvnum,nodes,laynum,a,nlay,m):
       
 
   if(int(laynum) == 1 and laynum != (nlay+1)):
-    l = l + '  h'+str(laynum)+' = tf.nn.'+ml.act[a]
+    l = l + '  h'+str(laynum)+' = tf.nn.'+ml.activations[a]
     l = l + '(tf.matmul(x,tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'
 
   elif(laynum == (nlay+1) and (laynum-1) == 0 ):
@@ -111,7 +111,7 @@ def CreateLayer(prvnum,nodes,laynum,a,nlay,m):
       l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'
       
   else:
-    l = l + '  h'+str(laynum)+' = tf.nn.'+ml.act[a]
+    l = l + '  h'+str(laynum)+' = tf.nn.'+ml.activations[a]
     l = l + '(tf.matmul(h'+str(laynum-1)
     l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'
     
@@ -157,36 +157,36 @@ def CreateNetwork(struct,mdlname,typ,inp,ou):
   lay = len(struct)+1  
   for i in range(len(struct)+1):
     if(i ==len(struct) and len(struct)!=0):
-      net = net + CreateLayer(prvnum=struct[i-1][0],
-                              nodes=ou[0][1],
-                              laynum=(i+1),
-                              a=struct[i-1][1],
-                              nlay=len(struct),
-                              m=typ)
+      net = net + CreateLayer(prvnum=struct[i-1][0]
+                              ,nodes=ou[0][1]
+                              ,laynum=(i+1)
+                              ,a=struct[i-1][1]
+                              ,nlay=len(struct)
+                              ,m=typ)
 
     elif(i==0 and len(struct)!=0 ):
-      net = net + CreateLayer(prvnum=inp[0][1],
-                              nodes=struct[i][0],
-                              laynum=(i+1),
-                              a=struct[i][1],
-                              nlay=len(struct),
-                              m=typ)
+      net = net + CreateLayer(prvnum=inp[0][1]
+                              ,nodes=struct[i][0]
+                              ,laynum=(i+1)
+                              ,a=struct[i][1]
+                              ,nlay=len(struct)
+                              ,m=typ)
 
     elif(i==0 and len(struct)==0):
-      net = net + CreateLayer(prvnum=inp[0][1],
-                              nodes=ou[0][1],
-                              laynum=(i+1),
-                              a='',
-                              nlay=len(struct),
-                              m=typ)
+      net = net + CreateLayer(prvnum=inp[0][1]
+                              ,nodes=ou[0][1]
+                              ,laynum=(i+1)
+                              ,a=''
+                              ,nlay=len(struct)
+                              ,m=typ)
 
     else:
-      net = net + CreateLayer(prvnum=struct[i-1][0],
-                              nodes=struct[i][0],
-                              laynum=(i+1),
-                              a=struct[i][1],
-                              nlay=len(struct),
-                              m=typ)
+      net = net + CreateLayer(prvnum=struct[i-1][0]
+                              ,nodes=struct[i][0]
+                              ,laynum=(i+1)
+                              ,a=struct[i][1]
+                              ,nlay=len(struct)
+                              ,m=typ)
 
 
   net = net + '\n  return out\n\n\n'

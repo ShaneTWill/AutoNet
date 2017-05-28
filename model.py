@@ -6,20 +6,71 @@ import sys
 
 
 # Dictionary of possible activation functions.
-act = {
-        0 : 'relu',
-        1 : 'relu6',
-        2 : 'crelu',
-        3 : 'elu',
-        4 : 'softplus',
-        5 : 'softsign'
-        }
+activations = {
+               0 : 'relu'
+               ,1 : 'relu6'
+               ,2 : 'crelu'
+               ,3 : 'elu'
+               ,4 : 'softplus'
+               ,5 : 'softsign'
+              }
 
 # Dictionary of input and output prompts
-io = {
-      0 : "How many inputs are there?",
-      1 : "How many outputs are there?\nIf this is a classification model that uses one-hot encoding enter number of possibile values."
-      }
+prompts = {
+           0 : 'How many inputs are there?,0,0'
+           ,1 : 'How many outputs are there?\nIf this is a classification model that uses one-hot encoding enter number of possibile values.,0,0'
+           ,2 : 'First thing is first: enter \'R\' for a regression model and \'C\' for a classification problem.,1,1'
+           ,3 : 'Now how many hidden layers are there?,2,2'
+          }
+
+
+conditions = {
+              0 : (lambda i: i.isdigit() and int(i) > 0)
+              ,1 : (lambda i: i in {'C','c','R','r'})
+              ,2 : (lambda i: i.isdigit() and int(i) > -1)
+             } 
+
+
+errors = {
+          0 : 'Sorry that was either not a number or less than 1. try again'
+          ,1 : 'Sorry that is not an option try again.'
+          ,2 : 'Sorry that was either not an integer or less than zero.'
+         }
+
+
+def _getData(key):
+  """
+    A general method that uses gets and data from the user. The model takes an integer as a parameter. This 
+    intger then pulls the correct prompt from the prompts dictionary and parses the control flow meta data 
+    from the prompt. 
+
+    Keyword Inputs: 
+    
+    key - the integer key for the prompt desired from the prompts dictionary.
+
+    Returns:
+
+    data - the information that the user has inputed into the system.
+
+  """
+  data = ''
+  prompt , condKey, err = prompts[key].split(',')
+  condKey = int(condKey)
+  err = int(err)
+
+  while True:
+    print(prompt)
+    i = sys.stdin.readline().strip()
+    if(conditions[condKey](i)):
+      data = i
+      break
+
+    else:
+      print(errors[err])
+
+  os.system('cls' if os.name == 'nt' else 'clear')
+
+  return data
 
 def getModelBasics():
   """
@@ -34,68 +85,11 @@ def getModelBasics():
   n = 0
   o = 0
   m = ''
-  m = getModelType()
-  n = getIOCounts(0)
-  o = getIOCounts(1)
+  m = _getData(2)
+  n = _getData(0)
+  o = _getData(1)
  
   return [[t,n]],[[t,o]],m
-
-
-def getIOCounts(key):
-  """
-  Asks the user for the number of inputs or outputs in the model.
-  
-  Keyword Arugments:
-  key -- A value that corresponds to the parameter that is being returned.
-  0 for input and 1 for output.
-  
-  Returns:
-  p -- The number of inputs, or outputs, selected by the user.
-  """
-  p = ''
-  
-  while True:
-    print(io[key])
-    i = sys.stdin.readline().strip()
-    if(i.isdigit() and int(i) > 0):
-      p = i
-      break
-        
-    else:
-      print('Sorry that was either not a number or less than 1. try again')
-
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return p
-  
-
-def getModelType():
-  """
-  Asks the user for the number of outputs in the model.
-
-  Returns:
-  m -- The model type selected by the user.
-  """
-
-  t = ''
-  m = ''
-  print('First thing is first: enter \'R\' for a regression model, and \'C\' for a classification problem.')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(i=='R'):
-      m = i
-      break
-    
-    elif(i=='C'):
-      m = i
-      break
-        
-    else:
-      print('Sorry that is not an option try again.')
-
-  os.system('cls' if os.name == 'nt' else 'clear')
-      
-  return m
 
 
 def getHiddenLayers():
@@ -111,7 +105,7 @@ def getHiddenLayers():
   cnt = 0
   cns = ''
   
-  i = getNumberOfLayers()
+  i = _getData(3)
   while(cnt < int(i)):
     cns = getNumberofNodes(cnt,cns)
     cns = getActivationFunction(cnt,cns)
@@ -130,26 +124,6 @@ def getHiddenLayers():
   e = eval(ary)
     
   return e
-
-
-def getNumberOfLayers():
-  """
-  Asks the user for the number of layers in the model.
-
-  Returns:
-  i -- The number of layers in the model.
-  """
-
-  print('Now how many hidden layers  are there?')
-  while True:
-    i = sys.stdin.readline().strip()
-    if(i.isdigit()):
-      break
-    else:
-      print('Sorry that was not an integer.')
-  os.system('cls' if os.name == 'nt' else 'clear')
-
-  return i
 
 
 def getNumberofNodes(cnt,cns):
@@ -195,8 +169,8 @@ def getActivationFunction(cnt,cns):
   n = 0
   print('For layer '+str(cnt+1)+'.')
   print('Below is a list of the activation functions supported. Choose one.') 
-  for k in act.keys():
-    print(str(k)+": "+str(act[k]))
+  for key,value in activations.items():
+      print('{}: {}'.format(key,value))
 
   while True:
     n = sys.stdin.readline().strip()

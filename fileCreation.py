@@ -29,25 +29,30 @@ def CreateDocString(struct,inp,out,t):
   Returns:
   doc -- Document string for the model file.
   """
+  
+  modeltype = 'classification'
+  depth = len(struct)-1
+  inputs = inp[0][1]
+  outputs = out[0][1]
+  date = time.strftime('%m/%d/%Y')
+  doc = 
+  '''\'\'\'\n  This is a Neural Network created to perform {0}.
+  
+  Depth: {1}
+  Inputs: {2}
+  Outputs: {3}
+  Date: {4}\n\n\'\'\'
+  '''
 
-  doc = '\'\'\'\n  This is a Neural Network created to perform'
   if(t=='R'):
-    doc = doc +' regression.'
-      
-  else:
-    doc = doc +' classification.'
+    modeltype = 'regression'
 
   if(len(struct)-1 == -1):
-    doc = doc + '\n\n  Depth: 0' 
-  
-  else:
-    doc = doc + '\n\n  Depth: ' + str(len(struct)-1)
-  
-  doc = doc + '\n  Inputs: ' + str(inp[0][1]) 
-  doc = doc + '\n  Outputs: ' + str(out[0][1])
-  doc = doc + '\n  Date: ' + str(time.strftime('%d/%m/%Y'))+'\n\n\'\'\''
+    depth = 0
+ 
+  data = [modeltype,depth,inputs,outputs,date]
     
-  return doc
+  return doc.format(*data)
 
 
 def CreateLayer(prvnum,nodes,laynum,a,nlay,m):
@@ -66,6 +71,37 @@ def CreateLayer(prvnum,nodes,laynum,a,nlay,m):
   l -- The code for a layer in a neural network as a string.
   """
 
+  currentLayer = 'hidden{0}'.format(laynum)
+  previousLayer = laynum-1
+  
+  numberOfLayers = nlay 
+  previous = prvnum
+  current = nodes
+  activation = ml.activations[a]
+  biases = 'biases = tf.Variable(tf.zeros([{0}]), name=\'biases\')'.format(current)
+  equation = 'h{0} = tf.nn.{1}(tf.matmul(h{1},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'.format(laynum
+                                                                                                                       ,activation
+                                                                                                                       ,laynum-1
+                                                                                                                       )
+  test = '''
+    with tf.name_scope(\'{0}\'):
+      weights = tf.Variable(tf.truncated_normal([{1},{2}], stddev = 1.0/math.sqrt(float({3}))), name=\'weights\')
+      {4}
+      {5}
+      
+  '''
+
+  if(laynum == numberOfLayers + 1):
+    currentLayer = 'output'
+    equation = __CreateOutputEquation(m,laynum-1)
+  
+  elif(laynum == (numberOfLayers+1) and (laynum-1) == 0):
+    currentLayer = ''
+
+  else:
+    equation = __CreateHiddenLayerEquation(laynum,numberOfLayers,activation)
+    biases = __CreateBiases(a,current)
+
   if(laynum == (nlay+1)):
     l = '  with tf.name_scope(\'output\'):\n    '
     l = l + 'weights = tf.Variable(tf.truncated_normal(['+str(prvnum)
@@ -81,13 +117,6 @@ def CreateLayer(prvnum,nodes,laynum,a,nlay,m):
     l = l + ','+str(nodes)+'], '
     l = l + 'stddev = 1.0/math.sqrt(float('+str(prvnum)+'))), name=\'weights\')\n    '
       
-    if(a==0):
-      l = l + 'biases = tf.Variable(tf.zeros(['+str(nodes)+'])+0.1, name=\'biases\')\n  '
-        
-    else:
-      l = l + 'biases = tf.Variable(tf.zeros(['+str(nodes)+']), name=\'biases\')\n  '
-      
-
   if(int(laynum) == 1 and laynum != (nlay+1)):
     l = l + '  h'+str(laynum)+' = tf.nn.'+ml.activations[a]
     l = l + '(tf.matmul(x,tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'
@@ -116,6 +145,34 @@ def CreateLayer(prvnum,nodes,laynum,a,nlay,m):
     l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'
     
   return l  
+
+
+def __CreateOutputEquation(modelType,prevLayNum):
+  equation = 'out = tf.matmul(h{0},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\'))\n\n'.format(prevLayNum)
+  if(modelType == 'C'):
+    equation = 'out = tf.nn.sigmoid(tf.matmul(h{0},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'.format(prevLayNum)
+
+  return equation
+
+
+def __CreateHiddenLayerEquation(layerNumber,numberOfLayers,activation):
+  equation = 'h{0} = tf.nn.{1}(tf.matmul(h{1},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'.format(layerNumber
+                                                                                                                       ,activation
+                                                                                                                       ,layerNumber-1
+                                                                                                                       )
+  if(int(layerNumber) == 1 and layerNumber != (numberOfLayers+1)):
+    equation = 'h{0} = tf.nn.{1}(tf.matmul(h{1},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'.format(layerNumber
+                                                                                                                         ,activation
+                                                                                                                         )
+  return equation
+
+
+def __CreateBiases(activationKey,layerNodeCount):
+  biases = 'biases = tf.Variable(tf.zeros([{0}]), name=\'biases\')'.format(layerNodeCount)
+  if(activationKey == 0):
+    biases = 'biases = tf.Variable(tf.zeros([{0}]) + 0.1 , name=\'biases\')'.format(layerNodeCount)
+
+  return biases
 
 
 def CreatePlaceholders(inp,out):

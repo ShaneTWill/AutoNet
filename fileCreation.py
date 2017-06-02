@@ -35,6 +35,7 @@ def CreateDocString(struct,inp,out,t):
   inputs = inp[0][1]
   outputs = out[0][1]
   date = time.strftime('%m/%d/%Y')
+  
   doc = 
   '''\'\'\'\n  This is a Neural Network created to perform {0}.
   
@@ -55,33 +56,33 @@ def CreateDocString(struct,inp,out,t):
   return doc.format(*data)
 
 
-def CreateLayer(prvnum,nodes,laynum,a,nlay,m):
+def CreateLayer(nodesInPreviousLayer,nodesInLayer,currentLayer,activationKey,numberOfLayers,modelType):
   """
   Creates the document string for the model.
 
   Keyword arguments:
-  prvnum -- Number of nodes in the previous layer.
-  nodes -- Number of nodes in this layer.
-  laynum -- Layer number.
-  a -- Activation function key.
-  nlay -- Number of layers in the model
-  m -- Model type.
+  nodesInPreviousLayer -- Number of nodes in the previous layer.
+  nodesInLayer -- Number of nodes in this layer.
+  currentLayer -- Layer number.
+  activationKey -- Activation function key.
+  numberOfLayers -- Number of layers in the model
+  modeType -- Model type.
 
   Returns:
   l -- The code for a layer in a neural network as a string.
   """
 
-  currentLayer = 'hidden{0}'.format(laynum)
-  previousLayer = laynum-1
+  layer = 'hidden{0}'.format(currentLayer)
+  previousLayer = currentLayer-1
   
-  numberOfLayers = nlay 
-  previous = prvnum
-  current = nodes
-  activation = ml.activations[a]
+  numberOfLayers = numberOfLayers
+  previous = nodesInPreviousLayer
+  current = nodesInLayer
+  activation = ml.activations[activationKey]
   biases = 'biases = tf.Variable(tf.zeros([{0}]), name=\'biases\')'.format(current)
-  equation = 'h{0} = tf.nn.{1}(tf.matmul(h{1},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'.format(laynum
+  equation = 'h{0} = tf.nn.{1}(tf.matmul(h{1},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'.format(currentLayer
                                                                                                                        ,activation
-                                                                                                                       ,laynum-1
+                                                                                                                       ,previousLayer
                                                                                                                        )
   test = '''
     with tf.name_scope(\'{0}\'):
@@ -91,16 +92,16 @@ def CreateLayer(prvnum,nodes,laynum,a,nlay,m):
       
   '''
 
-  if(laynum == numberOfLayers + 1):
-    currentLayer = 'output'
-    equation = __CreateOutputEquation(m,laynum-1)
+  if(currentLayer == numberOfLayers + 1):
+    layer = 'output'
+    equation = __CreateOutputEquation(modelType,previousLayer)
   
-  elif(laynum == (numberOfLayers+1) and (laynum-1) == 0):
-    currentLayer = ''
+  elif(currentLayer == (numberOfLayers+1) and (previousLayer) == 0):
+    layer = 'linearModel'
 
   else:
-    equation = __CreateHiddenLayerEquation(laynum,numberOfLayers,activation)
-    biases = __CreateBiases(a,current)
+    equation = __CreateHiddenLayerEquation(layer,numberOfLayers,activation)
+    biases = __CreateBiases(activationKey,nodesInLayer)
 
   if(laynum == (nlay+1)):
     l = '  with tf.name_scope(\'output\'):\n    '

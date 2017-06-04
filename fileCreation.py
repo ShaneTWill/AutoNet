@@ -15,6 +15,16 @@ header = '#!/usr/bin/env python'
 im = 'import tensorflow as tf\nimport math'
 
 
+# Dictionary of possible cost functions
+__cost = { 
+        0 : 'tf.sqrt(tf.reduce_mean(tf.square(tf.sub(pred,act))))'
+        ,1 : 'tf.reduce_mean(tf.square(tf.sub(pred,act)))'
+        ,2 : 'tf.reduce_mean(tf.abs(tf.sub(pred,act)))'
+        ,3 : 'tf.reduce_mean(tf.abs(tf.div(tf.sub(pred,act),act)))* 100.0'
+        ,4 : 'tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred,act))'
+        }
+
+
 
 def CreateDocString(struct,inp,out,t):
   """
@@ -36,13 +46,12 @@ def CreateDocString(struct,inp,out,t):
   outputs = out[0][1]
   date = time.strftime('%m/%d/%Y')
   
-  doc = 
-  '''\'\'\'\n  This is a Neural Network created to perform {0}.
+  doc = '''\'\'\'\n  This is a Neural Network created to perform {0}.
   
   Depth: {1}
   Inputs: {2}
   Outputs: {3}
-  Date: {4}\n\n\'\'\'
+  Date: {4}\n\'\'\'
   '''
 
   if(t=='R'):
@@ -69,102 +78,64 @@ def CreateLayer(nodesInPreviousLayer,nodesInLayer,currentLayer,activationKey,num
   modeType -- Model type.
 
   Returns:
-  l -- The code for a layer in a neural network as a string.
+  code -- The code for a layer in a neural network as a string.
   """
 
   layer = 'hidden{0}'.format(currentLayer)
   previousLayer = currentLayer-1
-  
-  numberOfLayers = numberOfLayers
-  previous = nodesInPreviousLayer
-  current = nodesInLayer
   activation = ml.activations[activationKey]
-  biases = 'biases = tf.Variable(tf.zeros([{0}]), name=\'biases\')'.format(current)
-  equation = 'h{0} = tf.nn.{1}(tf.matmul(h{1},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'.format(currentLayer
+  biases = 'biases = tf.Variable(tf.zeros([{0}]), name=\'biases\')'.format(nodesInLayer)
+  equation = 'h{0} = tf.nn.{1}(tf.matmul(h{2},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'.format(currentLayer
                                                                                                                        ,activation
                                                                                                                        ,previousLayer
                                                                                                                        )
-  test = '''
+  code = '''
     with tf.name_scope(\'{0}\'):
-      weights = tf.Variable(tf.truncated_normal([{1},{2}], stddev = 1.0/math.sqrt(float({3}))), name=\'weights\')
-      {4}
-      {5}
-      
-  '''
-
-  if(currentLayer == numberOfLayers + 1):
-    layer = 'output'
-    equation = __CreateOutputEquation(modelType,previousLayer)
+      weights = tf.Variable(tf.truncated_normal([{1},{2}], stddev = 1.0/math.sqrt(float({1}))), name=\'weights\')
+      {3}
+      {4}'''
   
-  elif(currentLayer == (numberOfLayers+1) and (previousLayer) == 0):
+  if(currentLayer == (numberOfLayers+1) and (previousLayer) == 0):
     layer = 'linearModel'
+    equation = __CreateOutputEquation(modelType,previousLayer,currentLayer,numberOfLayers)
+
+  elif(currentLayer == numberOfLayers + 1):
+    layer = 'output'
+    equation = __CreateOutputEquation(modelType,previousLayer,currentLayer,numberOfLayers)
+
 
   else:
-    equation = __CreateHiddenLayerEquation(layer,numberOfLayers,activation)
     biases = __CreateBiases(activationKey,nodesInLayer)
-
-  if(laynum == (nlay+1)):
-    l = '  with tf.name_scope(\'output\'):\n    '
-    l = l + 'weights = tf.Variable(tf.truncated_normal(['+str(prvnum)
-    l = l + ','+str(nodes)+'], '
-    l = l + 'stddev = 1.0/math.sqrt(float('+str(prvnum)
-    l = l + '))), name=\'weights\')\n    '
-    l = l + 'biases = tf.Variable(tf.zeros(['+str(nodes)
-    l = l + ']), name=\'biases\')\n  '
-
-  else:
-    l = '  with tf.name_scope(\'hidden'+str(laynum)+'\'):\n    '
-    l = l + 'weights = tf.Variable(tf.truncated_normal(['+str(prvnum)
-    l = l + ','+str(nodes)+'], '
-    l = l + 'stddev = 1.0/math.sqrt(float('+str(prvnum)+'))), name=\'weights\')\n    '
-      
-  if(int(laynum) == 1 and laynum != (nlay+1)):
-    l = l + '  h'+str(laynum)+' = tf.nn.'+ml.activations[a]
-    l = l + '(tf.matmul(x,tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'
-
-  elif(laynum == (nlay+1) and (laynum-1) == 0 ):
-    if(m =='R'):
-      l = l + '  out = tf.matmul(x'
-      l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\'))\n'
-
-    else:
-      l = l + '  out = tf.nn.sigmoid(tf.matmul(x'
-      l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'
-
-  elif(laynum == (nlay+1) and (laynum-1) != 0 ):
-    if(m =='R'):
-      l = l + '  out = tf.matmul(h'+str(laynum-1)
-      l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\'))\n'
-
-    else:
-      l = l + '  out = tf.nn.sigmoid(tf.matmul(h'+str(laynum-1)
-      l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'
-      
-  else:
-    l = l + '  h'+str(laynum)+' = tf.nn.'+ml.activations[a]
-    l = l + '(tf.matmul(h'+str(laynum-1)
-    l = l + ',tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'
-    
-  return l  
+    equation = __CreateHiddenLayerEquation(currentLayer,numberOfLayers,activation)
 
 
-def __CreateOutputEquation(modelType,prevLayNum):
-  equation = 'out = tf.matmul(h{0},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\'))\n\n'.format(prevLayNum)
+  data = [layer,nodesInPreviousLayer,nodesInLayer,biases,equation]
+
+  return code.format(*data)
+
+
+def __CreateOutputEquation(modelType,prevLayNum,currentLayNum,numberOfLayers):
+  equation = 'out = tf.matmul(h{0},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\'))\n'.format(prevLayNum)
   if(modelType == 'C'):
-    equation = 'out = tf.nn.sigmoid(tf.matmul(h{0},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'.format(prevLayNum)
+    equation = 'out = tf.nn.sigmoid(tf.matmul(h{0},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'.format(prevLayNum)
+    if (currentLayNum == (numberOfLayers+1) and (prevLayNum == 0)):
+      equation = 'out = tf.nn.sigmoid(tf.matmul(x,tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'
+  
+  elif(currentLayNum == (numberOfLayers+1) and (prevLayNum == 0)):
+    equation = 'out = tf.matmul(x,tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\'))\n'
 
   return equation
 
 
 def __CreateHiddenLayerEquation(layerNumber,numberOfLayers,activation):
-  equation = 'h{0} = tf.nn.{1}(tf.matmul(h{1},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'.format(layerNumber
+  equation = 'h{0} = tf.nn.{1}(tf.matmul(h{2},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'.format(layerNumber
                                                                                                                        ,activation
                                                                                                                        ,layerNumber-1
                                                                                                                        )
   if(int(layerNumber) == 1 and layerNumber != (numberOfLayers+1)):
-    equation = 'h{0} = tf.nn.{1}(tf.matmul(h{1},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n\n'.format(layerNumber
-                                                                                                                         ,activation
-                                                                                                                         )
+    equation = 'h{0} = tf.nn.{1}(tf.matmul(x,tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'.format(layerNumber
+                                                                                                                      ,activation
+                                                                                                                      )
   return equation
 
 
@@ -176,23 +147,23 @@ def __CreateBiases(activationKey,layerNodeCount):
   return biases
 
 
-def CreatePlaceholders(inp,out):
+def CreatePlaceholder(data,control):
   """
-  Creates the placeholders for the data.
+  Creates a placeholder for the data.
 
   Keyword arguments:
-  inp -- List of input data and data type.
-  out -- List of output data and data type.
-  
+  data -- List of input data and data type.
+  control -- A binary flag to control which placeholder to return.
+
   Returns:
-  x -- The Input placeholder.
-  y -- The Output placeholder.
+  placeholder -- The Output placeholder.
   """
 
-  x = 'X = tf.placeholder('+str(inp[0][0])+',[None,'+str(inp[0][1])+'])\n'
-  y = 'Y = tf.placeholder('+str(out[0][0])+',[None,'+str(out[0][1])+'])\n'
+  placeholder = 'X = tf.placeholder({0},[None,{1}])\n'
+  if(control == 1):
+    placeholder = 'Y = tf.placeholder({0},[None,{1}])\n'
     
-  return x,y
+  return placeholder.format(*(data[0]))
 
 
 def CreateNetwork(struct,mdlname,typ,inp,ou):
@@ -208,48 +179,31 @@ def CreateNetwork(struct,mdlname,typ,inp,ou):
   m -- Model type.
 
   Returns:
-  net -- The code for the model as a string.
+  network -- The code for the model as a string.
   """
 
-  net = 'def '+str(mdlname)+'(x):\n\n'
-  lay = len(struct)+1  
-  for i in range(len(struct)+1):
+  network = []
+  network.append('def {0}(x):\n'.format(mdlname))
+  numberOfLayers = len(struct)+1  
+  for i in range(numberOfLayers):
+    currentLayer = (i+1)
     if(i ==len(struct) and len(struct)!=0):
-      net = net + CreateLayer(prvnum=struct[i-1][0]
-                              ,nodes=ou[0][1]
-                              ,laynum=(i+1)
-                              ,a=struct[i-1][1]
-                              ,nlay=len(struct)
-                              ,m=typ)
+      parameters = [struct[i-1][0],ou[0][1],currentLayer,struct[i-1][1],len(struct),typ]
 
     elif(i==0 and len(struct)!=0 ):
-      net = net + CreateLayer(prvnum=inp[0][1]
-                              ,nodes=struct[i][0]
-                              ,laynum=(i+1)
-                              ,a=struct[i][1]
-                              ,nlay=len(struct)
-                              ,m=typ)
+      parameters = [inp[0][1],struct[i][0],currentLayer,struct[i][1],len(struct),typ]
 
     elif(i==0 and len(struct)==0):
-      net = net + CreateLayer(prvnum=inp[0][1]
-                              ,nodes=ou[0][1]
-                              ,laynum=(i+1)
-                              ,a=''
-                              ,nlay=len(struct)
-                              ,m=typ)
+      parameters = [inp[0][1],ou[0][1],currentLayer,0,len(struct),typ]
 
     else:
-      net = net + CreateLayer(prvnum=struct[i-1][0]
-                              ,nodes=struct[i][0]
-                              ,laynum=(i+1)
-                              ,a=struct[i][1]
-                              ,nlay=len(struct)
-                              ,m=typ)
+      parameters = [struct[i-1][0],struct[i][0],currentLayer,struct[i][1],len(struct),typ]
+      
+    network.append(CreateLayer(*parameters))
 
-
-  net = net + '\n  return out\n\n\n'
+  network.append('\n  return out\n\n\n')
     
-  return net
+  return ''.join(network)
 
 
 def CreateCost(lrn):
@@ -262,26 +216,15 @@ def CreateCost(lrn):
   Returns:
   c -- Code for the cost function as a string.
   """
+  
+  cost = '''def Cost(pred,act):
 
-  c = 'def Cost(pred,act):\n\n  '
-  if(lrn[0][0]==0):
-    c = c + 'c = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(pred,act))))\n\n  '
+  cost = {0}
 
-  elif(lrn[0][0]==1):
-    c = c + 'c = tf.reduce_mean(tf.square(tf.sub(pred,act)))\n\n  ' 
-
-  elif(lrn[0][0]==2):
-    c = c + 'c = tf.reduce_mean(tf.abs(tf.sub(pred,act)))\n\n  '
-
-  elif(lrn[0][0]==3):
-    c = c + 'c = tf.reduce_mean(tf.abs(tf.div(tf.sub(pred,act),act)))* 100.0\n\n  '
-
-  else:
-    c = c + 'c = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred,act))\n\n  '
-
-  c = c + 'return c\n\n\n'
+  return cost\n\n'''
+  equationKey = lrn[0][0]
     
-  return c
+  return cost.format(__cost[equationKey])
 
 
 def CreateSession(epchnum,mdlname):
@@ -293,18 +236,20 @@ def CreateSession(epchnum,mdlname):
   mdlname -- Name of the model.
 
   Returns:
-  sess -- The code for the training session.
+  session -- The code for the training session.
   """
 
-  sess = 'with tf.Session() as sess:\n    '
-  sess = sess + 'sess.run(init)\n    '
-  sess = sess + 'for epoch in range(int('+str(epchnum[0][1])+')):\n      '
-  sess = sess + '_,c = sess.run([opt,cost],feed_dict={X:x_,Y:y_})\n      '
-  sess = sess + 'if(epoch % 100 ==0):\n        '
-  sess = sess + 'saver.save(sess,\''+mdlname+'.ckpt\',global_step=epoch)\n        '
-  sess = sess + 'print(\'Epoch: \'+str(epoch)+\' Cost: \'+str(c))\n'
-    
-  return sess
+  steps = epchnum[0][1]
+  session = '''with tf.Session() as sess:
+    sess.run(init)
+    for epoch in range({0}):
+      _,c = sess.run([opt,cost], feed_dict={{X:x_,Y:y_}})
+      if(epoch % 100 == 0)
+        saver.save(sess,\'{1}.ckpt\',global_step=epoch)
+        print(\'Epoch: {{0}}\\tCost: {{1}}\'.format(epoch,c))
+  '''
+
+  return session.format(steps,mdlname)
 
 
 def CreateOptimizer(lrn):
@@ -315,21 +260,23 @@ def CreateOptimizer(lrn):
   lrn -- List of optimizer parameters.
 
   Returns:
-  o -- The code for the neural network optimizer.
+  optimize -- The code for the neural network optimizer.
   """
+  
+  optimize = '''def Optimize(loss):
 
-  o = 'def Optimize(loss):\n\n' 
+  {0}
+  opt = optimizer.minimize(loss)
+    
+  return opt
+  '''
+
+  data = op.OptimizerString(lrn)
   
   if(lrn[1][1] == 1):
-    o = o + op.OptimizerDefaultString(lrn) + '  '
-      
-  else:
-    o = o + op.OptimizerString(lrn) + '  '
-            
-  o = o + 'opt = optimizer.minimize(loss)\n\n  '
-  o = o + 'return opt'
+    data = op.OptimizerDefaultString(lrn)
     
-  return o
+  return optimize.format(data)
 
 
 def CreateModel(x,y,ty,hidden,learn,filename,modelname):
@@ -359,7 +306,8 @@ def CreateModel(x,y,ty,hidden,learn,filename,modelname):
       f.write('# Reserve memory for Inputs and outputs.\n#')
       [f.write('=') for _ in range(50)]
       f.write('\n\n')
-      i,o = CreatePlaceholders(inp=x,out=y)
+      i = CreatePlaceholder(x,0)
+      o = CreatePlaceholder(y,1)
       f.write(i)
       f.write(o)
       [f.write('\n') for _ in range(2)]
@@ -401,15 +349,18 @@ def CreateTrainer(mdl,lrn):
   s -- The train function as a string.
   """
 
-  s = 'def train(x_, y_):\n\n  '
-  s = s + 'pred = '+mdl+'(X)\n  '
-  s = s + 'cost = Cost(pred,Y)\n  '
-  s = s + 'opt = Optimize(cost)\n  '
-  s = s + 'init = tf.global_variables_initializer()\n  '
-  s = s + 'saver = tf.train.Saver(tf.global_variables())\n\n  ' 
-  s = s + CreateSession(epchnum=lrn,mdlname=mdl)
+  train = '''def train(x_,y_):
+
+    pred = {0}(X)
+    cost = Cost(pred,Y)
+    opt = Optimize(cost)
+    init = tf.gobal_variables_initializer()
+    saver = tf.train.Saver(tf.global_variables())
+    {1}'''
+
+  session = CreateSession(epchnum=lrn,mdlname=mdl)
       
-  return s
+  return train.format(mdl,session)
 
 
 def run():

@@ -98,7 +98,7 @@ def OptimizerDefaultString(param):
   o -- The optimizer code as a string.
   """
 
-  o = '  '
+  o = ''
   o = o + 'optimizer = tf.train.'+optimizers[param[1][0]]
   if(param[1][0] in defaults[1]):
     o = o + 'Optimizer()\n'
@@ -124,7 +124,7 @@ def OptimizerString(param):
   o -- The optimizer code as a string. 
   """
 
-  o = '  '
+  o = ''
   o = o + 'optimizer = tf.train.'+optimizers[param[1][0]]
   o = o + 'Optimizer(learning_rate='+str(param[1][2])
   

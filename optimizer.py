@@ -98,19 +98,22 @@ def OptimizerDefaultString(param):
   o -- The optimizer code as a string.
   """
 
-  o = ''
-  o = o + 'optimizer = tf.train.'+optimizers[param[1][0]]
-  if(param[1][0] in defaults[1]):
-    o = o + 'Optimizer()\n'
+  print(param)
+  data = param[1][0]
+  optimizer = []
+  optimizer.append('''optimizer = tf.train.{0}Optimizer('''.format(optimizers[data]))
   
-  elif(param[1][0] in defaults[0]):
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])+')\n'
-
+  if(data in defaults[0]):
+    optimizer.append(')')
+  
+  elif(data in defaults[1]):
+    optimizer.append('''learning_rate={0})'''.format(param[1][2]))
+  
   else:
-    o = o + 'Optimizer(learning_rate='+str(param[1][2])
-    o = o + ', momentum='+str(param[1][3])+')\n'
-    
-  return o
+    optimizer.append('''learning_rate={0}, momentum={1})'''.format(param[1][2],param[1][3]))
+   
+  
+  return ''.join(optimizer)
 
 
 def OptimizerString(param):
@@ -124,6 +127,8 @@ def OptimizerString(param):
   o -- The optimizer code as a string. 
   """
 
+  data = param[1][0]
+  optimizer = []
   o = ''
   o = o + 'optimizer = tf.train.'+optimizers[param[1][0]]
   o = o + 'Optimizer(learning_rate='+str(param[1][2])
@@ -213,7 +218,7 @@ def ChooseOptimizer(ary):
     os.system('cls' if os.name == 'nt' else 'clear')
     print('What Optimizer from the list below do you want to optimize with?')
     for key,value in optimizers.items():
-      print('{}: {}'.format(key,value))
+      print('{0}: {1}'.format(key,value))
 
     i = sys.stdin.readline().strip()
     if(i.isdigit() and (-1<int(i)<8)):

@@ -97,6 +97,7 @@ def OptimizerDefaultString(param):
   Returns:
   optimizer -- The optimizer code as a string.
   """
+
   data = param[1][0]
   optimizer = []
   optimizer.append('optimizer = tf.train.{0}Optimizer('.format(optimizers[data]))

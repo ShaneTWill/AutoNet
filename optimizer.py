@@ -95,23 +95,18 @@ def OptimizerDefaultString(param):
   param -- A python list that contains the optimizer key and parameter settings.
 
   Returns:
-  o -- The optimizer code as a string.
+  optimizer -- The optimizer code as a string.
   """
-
   print(param)
   data = param[1][0]
   optimizer = []
-  optimizer.append('''optimizer = tf.train.{0}Optimizer('''.format(optimizers[data]))
-  
+  optimizer.append('optimizer = tf.train.{0}Optimizer('.format(optimizers[data]))
   if(data in defaults[0]):
     optimizer.append(')')
-  
   elif(data in defaults[1]):
-    optimizer.append('''learning_rate={0})'''.format(param[1][2]))
-  
+    optimizer.append('learning_rate={0})'.format(param[1][2]))
   else:
-    optimizer.append('''learning_rate={0}, momentum={1})'''.format(param[1][2],param[1][3]))
-   
+    optimizer.append('learning_rate={0}, momentum={1})'.format(param[1][2],param[1][3]))
   
   return ''.join(optimizer)
 
@@ -124,50 +119,49 @@ def OptimizerString(param):
   param -- a python list that contains the optimizer key and parameter settings.
 
   Returns:
-  o -- The optimizer code as a string. 
+  optimizer -- The optimizer code as a string. 
   """
 
   data = param[1][0]
   optimizer = []
-  o = ''
-  o = o + 'optimizer = tf.train.'+optimizers[param[1][0]]
-  o = o + 'Optimizer(learning_rate='+str(param[1][2])
+  optimizer.append('optimizer = tf.train.{0}'.format(optimizers[data]))
+  optimizer.append('Optimizer(learning_rate={0}'.format(param[1][2]))
   
-  if(param[1][0]==0):
-    o = o + ')\n'
+  if(data == 0):
+    optimizer.append(')\n')
       
-  elif(param[1][0]==1):
-    o = o + ', rho='+str(param[1][3])
-    o = o + ', epsilon='+str(param[1][4])+')\n'
+  elif(data == 1):
+    optimizer.append(', rho={0}'.format(param[1][3]))
+    optimizer.append(', epsilon={0})\n'.format(param[1][4]))
       
-  elif(param[1][0]==2):
-    o = o + ', initial_accumulator_value='+str(param[1][3])+')\n'
+  elif(data == 2):
+    optimizer.append(', initial_accumulator_value={0})\n'.format(param[1][3]))
       
-  elif(param[1][0]==3):
-    o = o + ', initial_gradient_squared_accumulator_value='+str(param[1][3])
-    o = o + ', l1_regularization_strength='+str(param[1][4])
-    o = o + ', l2_regularization_strength='+str(param[1][5])+')\n'
+  elif(data == 3):
+    optimizer.append(', initial_gradient_squared_accumulator_value={0}'.format(param[1][3]))
+    optimizer.append(', l1_regularization_strength={0}'.format(param[1][4]))
+    optimizer.append(', l2_regularization_strength={0})\n'.format(param[1][5]))
       
-  elif(param[1][0]==4):
-    o = o + ', momentum='+str(param[1][3])+')\n'
+  elif(data == 4):
+    optimizer.append(', momentum={0})\n'.format(param[1][3]))
       
-  elif(param[1][0]==5):
-    o = o + ', beta1='+str(param[1][3])
-    o = o + ', beta2='+str(param[1][4])
-    o = o + ', epsilon='+str(param[1][5])+')\n'
+  elif(data == 5):
+    optimizer.append(', beta1={0}'.format(param[1][3]))
+    optimizer.append(', beta2={0}'.format(param[1][4]))
+    optimizer.append(', epsilon={0})\n'.format(param[1][5]))
       
-  elif(param[1][0]==6):
-    o = o + ', learning_rate_power='+str(param[1][3])
-    o = o + ', initial_accumulator_value='+str(param[1][4])
-    o = o + ', l1_regularization_strength='+str(param[1][5])
-    o = o + ', l2_regularization_strength='+str(param[1][6])+')\n'
+  elif(data == 6):
+    optimizer.append(', learning_rate_power={0}'.format(param[1][3]))
+    optimizer.append(', initial_accumulator_value={0}'.format(param[1][4]))
+    optimizer.append(', l1_regularization_strength={0}'.format(param[1][5]))
+    optimizer.append(', l2_regularization_strength={0})\n'.format(param[1][6]))
       
   else:
-    o = o + ', decay='+str(param[1][3])
-    o = o + ', momentum='+str(param[1][4])
-    o = o + ', epsilon='+str(param[1][5])+')\n'
-    
-  return o
+    optimizer.append(', decay={0}'.format(param[1][3]))
+    optimizer.append(', momentum={0}'.format(param[1][4]))
+    optimizer.append(', epsilon={0}'.format(param[1][5]))
+
+  return ''.join(optimizer)
 
 
 def getOptimizer():

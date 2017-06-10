@@ -16,13 +16,13 @@ im = 'import tensorflow as tf\nimport math'
 
 
 # Dictionary of possible cost functions
-__cost = {
-          0 : 'tf.sqrt(tf.reduce_mean(tf.square(tf.sub(pred,act))))'
-          ,1 : 'tf.reduce_mean(tf.square(tf.sub(pred,act)))'
-          ,2 : 'tf.reduce_mean(tf.abs(tf.sub(pred,act)))'
-          ,3 : 'tf.reduce_mean(tf.abs(tf.div(tf.sub(pred,act),act)))* 100.0'
-          ,4 : 'tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred,act))'
-         }
+_cost = {
+        0 : 'tf.sqrt(tf.reduce_mean(tf.square(tf.sub(pred,act))))'
+        ,1 : 'tf.reduce_mean(tf.square(tf.sub(pred,act)))'
+        ,2 : 'tf.reduce_mean(tf.abs(tf.sub(pred,act)))'
+        ,3 : 'tf.reduce_mean(tf.abs(tf.div(tf.sub(pred,act),act)))* 100.0'
+        ,4 : 'tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred,act))'
+        }
 
 
 def CreateDocString(struct,inp,out,t):
@@ -44,13 +44,12 @@ def CreateDocString(struct,inp,out,t):
     inputs = inp[0][1]
     outputs = out[0][1]
     date = time.strftime('%m/%d/%Y')
-    doc = '''\'\'\'\n  This is a Neural Network created to perform {0}.
+    doc = '''\"\"\"\n   This is a Neural Network created to perform {0}.
 
     Depth: {1}
     Inputs: {2}
     Outputs: {3}
-    Date: {4}\n\'\'\'
-    '''
+    Date: {4}\n\"\"\"'''
 
     if(t=='R'):
         modeltype = 'regression'
@@ -82,7 +81,7 @@ def CreateLayer(nodesInPreviousLayer, nodesInLayer
 
     layer = 'hidden{0}'.format(currentLayer)
     previousLayer = currentLayer-1
-    activation = ml.__activations[activationKey]
+    activation = ml._activations[activationKey]
     biases = 'biases = tf.Variable(tf.zeros([{0}]), name=\'biases\')'.format(nodesInLayer)
     equation = 'h{0} = tf.nn.{1}(tf.matmul(h{2},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'.format(currentLayer
                                                                                                                        ,activation
@@ -164,12 +163,12 @@ def CreateNetwork(struct,mdlname,typ,inp,ou):
     Creates the model.
 
     Keyword arguments:
-        struct -- The data parameters for all the data.
-        mdlname -- Model name.
-        typ -- Model type.
-        inp -- List of input parameters.
-        ou -- List of output parameters.
-        m -- Model type.
+    struct -- The data parameters for all the data.
+    mdlname -- Model name.
+    typ -- Model type.
+    inp -- List of input parameters.
+    ou -- List of output parameters.
+    m -- Model type.
 
     Returns:
         network -- The code for the model as a string.
@@ -191,7 +190,7 @@ def CreateNetwork(struct,mdlname,typ,inp,ou):
 
         network.append(CreateLayer(*parameters))
 
-    network.append('\n  return out\n\n\n')
+    network.append('\n    return out\n\n\n')
     return ''.join(network)
 
 
@@ -207,12 +206,13 @@ def CreateCost(lrn):
     """
 
     cost = '''def Cost(pred,act):
-            cost = {0}
 
-            return cost\n\n'''
+    cost = {0}
+
+    return cost'''
 
     key = lrn[0][0] # Dictionary key
-    equation = __cost[key] # Cost function
+    equation = _cost[key] # Cost function
     return cost.format(equation)
 
 
@@ -230,15 +230,14 @@ def CreateSession(epchnum,mdlname):
 
     epochs = epchnum[0][1] # number of total epochs
     session = '''with tf.Session() as sess:
-        sess.run(init)
-        for epoch in range({0}):
-            _,c = sess.run([opt,cost], feed_dict={{X:x_,Y:y_}})
-            if(epoch % 100 == 0):
-                saver.save(sess,\'{1}.ckpt\',global_step=epoch)
-                print(\'Epoch: {{0}}\\tCost: {{1}}\'.format(epoch,c))
-        '''
+    sess.run(init)
+    for epoch in range({0}):
+        _,c = sess.run([opt,cost], feed_dict={{X:x_,Y:y_}})
+        if (epoch % 100 == 0):
+            saver.save(sess,\'{1}.ckpt\',global_step=epoch)
+            print(\'Epoch: {{0}}\\tCost: {{1}}\'.format(epoch,c))'''
 
-    return session.format(epochps,mdlname)
+    return session.format(epochs,mdlname)
 
 
 def CreateOptimizer(lrn):
@@ -254,10 +253,10 @@ def CreateOptimizer(lrn):
 
     optimize = '''def Optimize(loss):
 
-        {0}
-        opt = optimizer.minimize(loss)
-        return opt
-    '''
+    {0}
+    opt = optimizer.minimize(loss)
+
+    return opt'''
 
     data = op.OptimizerString(lrn)
     if(lrn[1][1] == 1):
@@ -312,6 +311,7 @@ def CreateModel(x,y,ty,hidden,learn,filename,modelname):
         [f.write('=') for _ in range(50)]
         f.write('\n\n')
         f.write(CreateCost(lrn=learn))
+        f.write('\n\n')
         f.write('#')
         [f.write('=') for _ in range(50)]
         f.write('\n')
@@ -338,13 +338,12 @@ def CreateTrainer(mdl,lrn):
 
     train = '''def train(x_,y_):
 
-        pred = {0}(X)
-        cost = Cost(pred,Y)
-        opt = Optimize(cost)
-        init = tf.gobal_variables_initializer()
-        saver = tf.train.Saver(tf.global_variables())
-        {1}
-    '''
+    pred = {0}(X)
+    cost = Cost(pred,Y)
+    opt = Optimize(cost)
+    init = tf.gobal_variables_initializer()
+    saver = tf.train.Saver(tf.global_variables())
+    {1}'''
 
     session = CreateSession(epchnum=lrn,mdlname=mdl)
     return train.format(mdl,session)
@@ -361,7 +360,7 @@ def run():
     print('If you do not wish to continue enter simply type -1 then press the Enter key.')
     i = sys.stdin.readline().strip()
     os.system('cls' if os.name == 'nt' else 'clear')
-    if(i=='-1'):
+    if(i == '-1'):
         sys.exit()
     inp,out,m = ml.getModelBasics()
     hid = ml.getHiddenLayers()

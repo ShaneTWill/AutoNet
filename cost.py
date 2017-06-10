@@ -5,7 +5,7 @@ import os
 
 
 # Dictionary of possible cost functions.
-__metrics = {
+_metrics = {
             0 : 'RMSE: Root Mean Squared Error'
             ,1 : 'MSE: Mean Squared Error'
             ,2 : 'MAE: Mean Absolute Error'
@@ -13,19 +13,19 @@ __metrics = {
             }
 
 # Dictionary of conditional boolean statements used.
-__conditions = {
-                0: (lambda i: isinstance(i, int) and (-1 < int(i) < len(__metrics)))
-                ,1: (lambda i: isinstance(i, int) and int(i) > 0)
+_conditions = {
+                0: (lambda i: i.isdigit() and (-1 < int(i) < len(_metrics)))
+                ,1: (lambda i: i.isdigit() and int(i) > 0)
                 }
 
 # Dictionary of error message strings.
-__errors = {
+_errors = {
             0: 'Sorry that was not an integer, or an option, please try again.'
             ,1: 'Sorry was not an integer.'
             }
 
 # Dictionary of prompt message strings.
-__prompts = {
+_prompts = {
             0: 'What metric from the list below do you want to optimize by?'
             ,1: 'Finally how many epochs should the model be trained over?'
             }
@@ -46,8 +46,8 @@ def getMetric():
 
     arry = []
     arry.append('[')
-    arry = getData(0,ary)
-    arry = getData(1,ary)
+    arry = getData(0,arry)
+    arry = getData(1,arry)
     arry.append(']')
 
     return ''.join(arry)
@@ -67,13 +67,13 @@ def getData(code,ary):
     ary -- The inputted string with the data concatenated onto it.
     """
 
-    prompt = __prompts[code] # Prompt string
-    condition = __conditions[code] # Conditional Lambda
-    error = __errors[code] # Error Message
+    prompt = _prompts[code] # Prompt string
+    condition = _conditions[code] # Conditional Lambda
+    error = _errors[code] # Error Message
 
     print(prompt)
     if code == 0:
-        for key, value in __metrics.items():
+        for key, value in _metrics.items():
             print('{}: {}'.format(key,value))
 
     while True:
@@ -84,7 +84,8 @@ def getData(code,ary):
             break
         else:
             print(error)
-        os.system('cls' if os.name == 'nt' else 'clear')
+
+    os.system('cls' if os.name == 'nt' else 'clear')
 
     return ary
 

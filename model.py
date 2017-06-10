@@ -6,7 +6,7 @@ import sys
 
 
 # Dictionary of possible activation functions.
-__activations = {
+_activations = {
                 0 : 'relu'
                 ,1 : 'relu6'
                 ,2 : 'crelu'
@@ -17,7 +17,7 @@ __activations = {
 
 # Dictionary of input and output prompts along with key values for the
 # __conditions and __errors dictionaries
-__prompts = {
+_prompts = {
             0 : 'How many inputs are there?,0,0'
             ,1 : 'How many outputs are there?\nIf this is a classification model that uses one-hot encoding enter number of possibile values.,0,0'
             ,2 : 'First thing is first: enter \'R\' for a regression model and \'C\' for a classification problem.,1,1'
@@ -25,21 +25,21 @@ __prompts = {
             }
 
 # Collections of boolean statements as lambda functions
-__conditions = {
-                0 : (lambda i: isinstance(i,int) and int(i) > 0)
-                ,1 : (lambda i: i in {'C','c','R','r'})
-                ,2 : (lambda i: isinstance(i,int) and int(i) > -1)
-                }
-
-# Error messages
-__errors = {
-            0 : 'Sorry that was either not a number or less than 1. try again'
-            ,1 : 'Sorry that is not an option try again.'
-            ,2 : 'Sorry that was either not an integer or less than zero.'
+_conditions = {
+            0 : (lambda i: i.isdigit() and int(i) > 0)
+            ,1 : (lambda i: i in {'C','c','R','r'})
+            ,2 : (lambda i: i.isdigit() and int(i) > -1)
             }
 
+# Error messages
+_errors = {
+        0 : 'Sorry that was either not a number or less than 1. try again'
+        ,1 : 'Sorry that is not an option try again.'
+        ,2 : 'Sorry that was either not an integer or less than zero.'
+        }
 
-def __getData(key):
+
+def _getData(key):
     """
     A general method that uses a key to pull data from the class dictionaries
     and uses this information to obtain information from the user.
@@ -56,9 +56,9 @@ def __getData(key):
 
     """
     data = ''
-    prompt , condKey, err = __prompts[key].split(',') # Get the prompt/keys
-    condition = __conditions[int(condKey)] # Conditional lambda
-    error = __errors[int(err)] # The error message
+    prompt , condKey, err = _prompts[key].split(',') # Get the prompt/keys
+    condition = _conditions[int(condKey)] # Conditional lambda
+    error = _errors[int(err)] # The error message
 
     while True:
         print(prompt)
@@ -86,9 +86,9 @@ def getModelBasics():
     n = 0 # Number of inputs
     o = 0 # Number of outputs
     m = '' # Model type
-    m = __getData(2)
-    n = __getData(0)
-    o = __getData(1)
+    m = _getData(2)
+    n = _getData(0)
+    o = _getData(1)
 
     return [[t,n]],[[t,o]],m
 
@@ -107,7 +107,7 @@ def getHiddenLayers():
     cnt = 0
     cns = ''
 
-    i = __getData(3)
+    i = _getData(3)
     while (cnt < int(i)):
         cns = getNumberofNodes(cnt,cns)
         cns = getActivationFunction(cnt,cns)
@@ -141,7 +141,7 @@ def getNumberofNodes(cnt,cns):
     print('For layer {}.\nHow many nodes are there?'.format(cnt+1))
     while True:
         n = sys.stdin.readline().strip()
-        if (isinstance(n, int) and int(n) > 0):
+        if (n.isdigit() and int(n) > 0):
             cns = '['+str(n)+','
             break
         else:
@@ -167,12 +167,12 @@ def getActivationFunction(cnt,cns):
     n = 0
     print('For layer {}.'.format(cnt+1))
     print('Below is a list of the activation functions supported, choose one.')
-    for key, value in activations.items():
+    for key, value in _activations.items():
         print('{}: {}'.format(key,value))
 
     while True:
         n = sys.stdin.readline().strip()
-        if (isinstance(n, int) and (-1 < int(n) < len(__activations))):
+        if (n.isdigit() and (-1 < int(n) < len(_activations))):
             cns = cns + str(n) + ']'
             break
         else:

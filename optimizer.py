@@ -4,7 +4,7 @@ import sys
 import os
 
 # Dictionary of possible optimization methods.
-__optimizers = {
+_optimizers = {
                 0 : 'GradientDescent'
                 ,1 : 'Adadelta'
                 ,2 : 'Adagrad'
@@ -16,7 +16,7 @@ __optimizers = {
                 }
 # Dictionary of parameters and the associated keys to the __example, __invalid,
 # and  __conditions dictionaries
-__parameters = {
+_parameters = {
                 0: 'LearningRate,0'
                 ,1: 'Momentum,1'
                 ,2: 'Rho,0'
@@ -33,28 +33,28 @@ __parameters = {
 
 
 # Dictionary of examples for the user to know what data to enter.
-__examples = {
+_examples = {
             0: 'a float greater than 0.0 ex. 0.05.'
             ,1: 'a float and must be greater than or equal to 0. i.e. 0.01.'
             ,2: 'a float and must be less than or equal to 0. i.e. -0.5.'
             }
 
 # Dictionary of messages to give the user on invalid data entry.
-__invalids = {
+_invalids = {
             0: 'not greater than zero'
             ,1: 'less than zero'
             ,2: 'greater than zero'
             }
 
 # Dictionary of lambda expressions for the conditional expressions.
-__conditions = {
-                0: (lambda i: isinstance(float(i),float) and (float(i) > 0))
-                ,1: (lambda i: isinstance(float(i),float) and (float(i) >= 0))
-                ,2: (lambda i: isinstance(float(i),float) and (float(i) <= 0))
+_conditions = {
+                0: (lambda i: i.replace('.','',1).isdigit() and (float(i) > 0))
+                ,1: (lambda i: i.replace('.','',1).isdigit() and (float(i) >= 0))
+                ,2: (lambda i: i.replace('.','',1).isdigit() and (float(i) <= 0))
                 }
 
 # Sets used for flow control when you choose to use the default parameters.
-__defaults = {
+_defaults = {
             0: {0,2,3,6,7}
             ,1: {1,5}
             }
@@ -70,13 +70,13 @@ def getParameter(key):
     val -- The value selected by the user.
     """
 
-    l = parameters[key].split(',')
+    l = _parameters[key].split(',')
     val = ''
-    example = __examples[int(l[1])]
-    condition = __conditions[int(l[1])]
-    invalid = __invalids[int(l[1])]
+    example = _examples[int(l[1])]
+    condition = _conditions[int(l[1])]
+    invalid = _invalids[int(l[1])]
 
-    print('What value would you like for {}?',format(l[0]))
+    print('What value would you like for the {}?'.format(l[0]))
     print('Please note that this is {}'.format(example))
     while True:
         inp = sys.stdin.readline().strip()
@@ -104,10 +104,10 @@ def OptimizerDefaultString(param):
 
     data = param[1][0]
     optimizer = []
-    optimizer.append('optimizer = tf.train.{0}Optimizer('.format(optimizers[data]))
-    if(data in __defaults[0]):
+    optimizer.append('optimizer = tf.train.{0}Optimizer('.format(_optimizers[data]))
+    if(data in _defaults[0]):
         optimizer.append(')')
-    elif(data in __defaults[1]):
+    elif(data in _defaults[1]):
         optimizer.append('learning_rate={0})'.format(param[1][2]))
     else:
         optimizer.append('learning_rate={0}, momentum={1})'.format(param[1][2],param[1][3]))
@@ -128,7 +128,7 @@ def OptimizerString(param):
 
     data = param[1][0]
     optimizer = []
-    optimizer.append('optimizer = tf.train.{0}'.format(optimizers[data]))
+    optimizer.append('optimizer = tf.train.{0}'.format(_optimizers[data]))
     optimizer.append('Optimizer(learning_rate={0}'.format(param[1][2]))
     if(data == 0):
         optimizer.append(')\n')
@@ -180,7 +180,7 @@ def getOptimizer():
     ary , key = ChooseOptimizer(ary)
     ary , df = SetDefault(ary)
 
-    if(df==1):
+    if(df == 1):
         ary = ary + getOptimizerDefaultParameters(key)
     else:
         ary = ary + getOptimizerParameters(key)
@@ -202,7 +202,7 @@ def ChooseOptimizer(ary):
     """
 
     print('What Optimizer from the list below do you want to optimize with?')
-    for key,value in optimizers.items():
+    for key,value in _optimizers.items():
         print('{0}: {1}'.format(key,value))
     while True:
         i = sys.stdin.readline().strip()
@@ -233,7 +233,7 @@ def SetDefault(ary):
     print('Would you like to use the default settings or not?\nDefault: 1\tNot: 0.')
     while True:
         i = sys.stdin.readline().strip()
-        if(i.isdigit() and (-1<int(i)<2)):
+        if(i.isdigit() and (-1 < int(i) < 2)):
             df = int(i)
             ary = ary + str(i) + ','
             break
@@ -256,9 +256,9 @@ def getOptimizerDefaultParameters(key):
     """
 
     s = ''
-    if(key in defaults[1]):
+    if(key in _defaults[1]):
         s = ''
-    elif(key in defaults[0]):
+    elif(key in _defaults[0]):
         l = getParameter(0)
         s = l
     else:
@@ -283,29 +283,29 @@ def getOptimizerParameters(key):
 
     s = ''
     l = getParameter(0)
-    if(key==0):
+    if(key == 0):
         s = l
-    elif(key==1):
+    elif(key == 1):
         r = getParameter(2)
         e = getParameter(3)
         s = l + ',' + r + ',' + e
-    elif(key==2):
+    elif(key == 2):
         initial = getParameter(4)
         s = l + ',' + initial
-    elif(key==3):
+    elif(key == 3):
         gsa = getParameter(5)
         l1 = getParameter(6)
         l2 = getParameter(7)
         s = l + ',' + gsa + ',' + l1 + ',' + l2
-    elif(key==4):
+    elif(key == 4):
         m = getParameter(1)
         s = l + ',' + m
-    elif(key==5):
+    elif(key == 5):
         b1 = getParameter(8)
         b2 = getParameter(9)
         e = getParameter(3)
         s = l + ',' + b1 + ',' + b2 + ',' + e
-    elif(key==6):
+    elif(key == 6):
         lr = getParameter(10)
         a = getParameter(4)
         l1 = getParameter(6)

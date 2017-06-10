@@ -5,83 +5,86 @@ import os
 
 
 # Dictionary of possible cost functions.
-metrics = {
-           0 : 'RMSE: Root Mean Squared Error'
-           ,1 : 'MSE: Mean Squared Error'
-           ,2 : 'MAE: Mean Absolute Error'
-           ,3 : 'MAPE: Mean Absolute Percent Error'
-          }
+__metrics = {
+            0 : 'RMSE: Root Mean Squared Error'
+            ,1 : 'MSE: Mean Squared Error'
+            ,2 : 'MAE: Mean Absolute Error'
+            ,3 : 'MAPE: Mean Absolute Percent Error'
+            }
 
-# Dictionary of conditional boolean statements used. 
-conditions = {
-              0: (lambda i: i.isdigit() and (-1<int(i)<len(metrics)))
-              ,1: (lambda i: i.isdigit() and (int(i)>0))
-             }
+# Dictionary of conditional boolean statements used.
+__conditions = {
+                0: (lambda i: isinstance(i, int) and (-1 < int(i) < len(__metrics)))
+                ,1: (lambda i: isinstance(i, int) and int(i) > 0)
+                }
 
 # Dictionary of error message strings.
-errors = {
-          0: 'Sorry that was not an integer, or an option, please try again.'
-          ,1: 'Sorry was not an integer.'
-         }
+__errors = {
+            0: 'Sorry that was not an integer, or an option, please try again.'
+            ,1: 'Sorry was not an integer.'
+            }
 
 # Dictionary of prompt message strings.
-prompts = {
-           0: 'What metric from the list below do you want to optimize by?'
-           ,1: 'Finally how many epochs should the model be trained over?'
-          }
+__prompts = {
+            0: 'What metric from the list below do you want to optimize by?'
+            ,1: 'Finally how many epochs should the model be trained over?'
+            }
 
 def getMetric():
-  """
-  Calls the methods to choose the cost metric and the number of epochs to train over.
-  
-  Once the cost metric and number of epochs have been chosen a string is returned.
-  This string takes the form of a python list with the data stored in the following
-  format: ['metric','epochs']
+    """
+    Calls the methods to choose the cost metric and the number of epochs to train over.
 
-  Returns:
-    A string that is valid python code for the creation of a list.
+    Once the cost metric and number of epochs have been chosen a string is returned.
+    This string takes the form of a python list with the data stored in the following
+    format: ['metric','epochs']
 
-  Example: "[0,500]"
-  """
+    Returns:
+        A string that is valid python code for the creation of a list.
 
-  ary = '['
-  e = ']'
-  
-  ary = getData(0,ary)
-  ary = getData(1,ary)
-  ary += e
+    Example: "[0,500]"
+    """
 
-  return ary
+    arry = []
+    arry.append('[')
+    arry = getData(0,ary)
+    arry = getData(1,ary)
+    arry.append(']')
+
+    return ''.join(arry)
 
 
 def getData(code,ary):
-  """
-    Uses data that the user inputs and and returns the modified 
+    """
+    Uses data that the user inputs and and returns the modified
     string ary. For the creation of a list of values.
 
     Keyword arguments:
-    code -- An integer that is used to pull the correct data from the dictionaries 
+    code -- An integer that is used to pull the correct data from the dictionaries
             and perform flow control.
-    ary -- A string that the number of epochs is concatenated on to.
+    ary -- A list of strings to append the new values to.
 
     Returns:
     ary -- The inputted string with the data concatenated onto it.
-  """
-  
-  print(prompts[code])
-  if(code == 0):
-    for key, value in metrics.items():
-      print('{}: {}'.format(key,value))
+    """
 
-  while True:
-    i = sys.stdin.readline().strip()
-    if(conditions[code](i)):
-      ary = ary + str(i) + ','
-      break
-                                          
-    else:
-      print(errors[code])
-  os.system('cls' if os.name == 'nt' else 'clear')
+    prompt = __prompts[code] # Prompt string
+    condition = __conditions[code] # Conditional Lambda
+    error = __errors[code] # Error Message
 
-  return ary
+    print(prompt)
+    if code == 0:
+        for key, value in __metrics.items():
+            print('{}: {}'.format(key,value))
+
+    while True:
+        inp = sys.stdin.readline().strip()
+        if(condition(inp)):
+            ary.append(str(inp))
+            ary.append(',')
+            break
+        else:
+            print(error)
+        os.system('cls' if os.name == 'nt' else 'clear')
+
+    return ary
 

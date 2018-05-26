@@ -5,7 +5,7 @@ import os
 
 
 # Dictionary of possible cost functions.
-_metrics = {
+METRICS = {
             0 : 'RMSE: Root Mean Squared Error'
             ,1 : 'MSE: Mean Squared Error'
             ,2 : 'MAE: Mean Absolute Error'
@@ -13,22 +13,22 @@ _metrics = {
             }
 
 # Dictionary of conditional boolean statements used.
-_conditions = {
-                0: (lambda i: i.isdigit() and (-1 < int(i) < len(_metrics)))
-                ,1: (lambda i: i.isdigit() and int(i) > 0)
-                }
+CONDITIONS = {
+            0: (lambda i: i.isdigit() and (-1 < int(i) < len(_metrics)))
+            ,1: (lambda i: i.isdigit() and int(i) > 0)
+            }
 
 # Dictionary of error message strings.
-_errors = {
-            0: 'Sorry that was not an integer, or an option, please try again.'
-            ,1: 'Sorry was not an integer.'
-            }
+ERRORS = {
+        0: 'Sorry that was not an integer, or an option, please try again.'
+        ,1: 'Sorry was not an integer.'
+        }
 
 # Dictionary of prompt message strings.
-_prompts = {
-            0: 'What metric from the list below do you want to optimize by?'
-            ,1: 'Finally how many epochs should the model be trained over?'
-            }
+PROMPTS = {
+        0: 'What metric from the list below do you want to optimize by?'
+        ,1: 'Finally how many epochs should the model be trained over?'
+        }
 
 def getMetric():
     """
@@ -44,48 +44,51 @@ def getMetric():
     Example: "[0,500]"
     """
 
-    arry = []
-    arry.append('[')
-    arry = getData(0,arry)
-    arry = getData(1,arry)
-    arry.append(']')
+    array = []
+    array.append('[')
+    for num in range(2):
+        array = getData(num,array)
+    array.append(']')
 
-    return ''.join(arry)
+    return ''.join(array)
 
 
-def getData(code,ary):
+def getData(key,input_array):
     """
     Uses data that the user inputs and and returns the modified
     string ary. For the creation of a list of values.
 
     Keyword arguments:
-    code -- An integer that is used to pull the correct data from the dictionaries
+    key -- An integer that is used to pull the correct data from the dictionaries
             and perform flow control.
-    ary -- A list of strings to append the new values to.
+
+    input_array -- A list of strings to append the new values to.
 
     Returns:
-    ary -- The inputted string with the data concatenated onto it.
+    array -- The inputted string with the data concatenated onto it.
     """
 
-    prompt = _prompts[code] # Prompt string
-    condition = _conditions[code] # Conditional Lambda
-    error = _errors[code] # Error Message
+    keep_running = True
+    constants = [PROMPTS,CONDITIONS,ERRORS]
+
+    array = list(input_array)
+    prompt, condition, error = [constant.get(key) for constant in constants]
 
     print(prompt)
-    if code == 0:
-        for key, value in _metrics.items():
-            print('{}: {}'.format(key,value))
+    if key == 0:
+        for k, v in METRICS.items():
+            print('{}: {}'.format(k,v))
 
-    while True:
-        inp = sys.stdin.readline().strip()
-        if(condition(inp)):
-            ary.append(str(inp))
-            ary.append(',')
-            break
+    while keep_running:
+        user_input = sys.stdin.readline().strip()
+        if(condition(user_input)):
+            for item in [str(user_input),',']:
+                array.append(item)
+            keep_running = False
         else:
             print(error)
 
     os.system('cls' if os.name == 'nt' else 'clear')
 
-    return ary
+    return array
 

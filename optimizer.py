@@ -4,60 +4,96 @@ import sys
 import os
 
 # Dictionary of possible optimization methods.
-_optimizers = {
-                0 : 'GradientDescent'
-                ,1 : 'Adadelta'
-                ,2 : 'Adagrad'
-                ,3 : 'AdagradDA'
-                ,4 : 'Momentum'
-                ,5 : 'Adam'
-                ,6 : 'Ftrl'
-                ,7 : 'RMSProp'
-                }
+OPTIMIZERS = {
+            0 : 'GradientDescent'
+            ,1 : 'Adadelta'
+            ,2 : 'Adagrad'
+            ,3 : 'AdagradDA'
+            ,4 : 'Momentum'
+            ,5 : 'Adam'
+            ,6 : 'Ftrl'
+            ,7 : 'RMSProp'
+            }
+
 # Dictionary of parameters and the associated keys to the __example, __invalid,
 # and  __conditions dictionaries
-_parameters = {
-                0: 'LearningRate,0'
-                ,1: 'Momentum,1'
-                ,2: 'Rho,0'
-                ,3: 'Epsilon,0'
-                ,4: 'InitialAccumulatorValue,0'
-                ,5: 'InitialGradientSquaredAccumulatorValue,0'
-                ,6: 'L1RegularizationStrength,1'
-                ,7: 'L2RegularizationStrength,1'
-                ,8: 'Beta1,1'
-                ,9: 'Beta2,1'
-                ,10: 'LearningRatePower,2'
-                ,11: 'Decay,1'
-                }
+PARAMETERS = {
+            0: ('LearningRate',0)
+            ,1: ('Momentum',1)
+            ,2: ('Rho',0)
+            ,3: ('Epsilon',0)
+            ,4: ('InitialAccumulatorValue',0)
+            ,5: ('InitialGradientSquaredAccumulatorValue',0)
+            ,6: ('L1RegularizationStrength',1)
+            ,7: ('L2RegularizationStrength',1)
+            ,8: ('Beta1',1)
+            ,9: ('Beta2',1)
+            ,10: ('LearningRatePower',2)
+            ,11: ('Decay',1)
+            }
 
 
 # Dictionary of examples for the user to know what data to enter.
-_examples = {
-            0: 'a float greater than 0.0 ex. 0.05.'
-            ,1: 'a float and must be greater than or equal to 0. i.e. 0.01.'
-            ,2: 'a float and must be less than or equal to 0. i.e. -0.5.'
-            }
+EXAMPLES = {
+        0: 'a float greater than 0.0 ex. 0.05.'
+        ,1: 'a float and must be greater than or equal to 0. i.e. 0.01.'
+        ,2: 'a float and must be less than or equal to 0. i.e. -0.5.'
+        }
 
 # Dictionary of messages to give the user on invalid data entry.
-_invalids = {
+INVALIDS = {
             0: 'not greater than zero'
             ,1: 'less than zero'
             ,2: 'greater than zero'
             }
 
 # Dictionary of lambda expressions for the conditional expressions.
-_conditions = {
-                0: (lambda i: i.replace('.','',1).isdigit() and (float(i) > 0))
-                ,1: (lambda i: i.replace('.','',1).isdigit() and (float(i) >= 0))
-                ,2: (lambda i: i.replace('.','',1).isdigit() and (float(i) <= 0))
-                }
+CONDITIONS = {
+            0: (lambda i: i.replace('.','',1).isdigit() and (float(i) > 0))
+            ,1: (lambda i: i.replace('.','',1).isdigit() and (float(i) >= 0))
+            ,2: (lambda i: i.replace('.','',1).isdigit() and (float(i) <= 0))
+            }
 
 # Sets used for flow control when you choose to use the default parameters.
-_defaults = {
+DEFAULTS = {
             0: {0,2,3,6,7}
             ,1: {1,5}
             }
+
+PARAMETER_DICTIONARY = {
+    0:[0],
+    1:[0,2,3],
+    2:[0,4],
+    3:[0,5,6,7],
+    4:[0,1],
+    5:[0,8,9,3],
+    6:[0,10,4,6,7]
+}
+
+OPTIMIZER_STRING_COLLECTIONS = {
+    0: [],
+    1: [('rho',3),
+        ('epsilon',4)
+       ],
+    2: [('intial_accumulator_value',3)
+       ],
+    3: [('initial_gradient_squared_accumulator_value',3),
+        ('l1_regularization_strength',4),
+        ('l2_regularization_strength',5)
+       ],
+    4: [('momentum',3)
+       ],
+    5: [('beta1',3),
+        ('beta2',4),
+        ('epsilon',5)
+       ],
+    6: [('learning_rate_power',3),
+        ('initial_accumulator_value',4),
+        ('l1_regularization_strength',5),
+        ('l2_regularization_strength',6)
+       ],
+}
+
 
 def getParameter(key):
     """
@@ -70,19 +106,20 @@ def getParameter(key):
     val -- The value selected by the user.
     """
 
-    l = _parameters[key].split(',')
     val = ''
-    example = _examples[int(l[1])]
-    condition = _conditions[int(l[1])]
-    invalid = _invalids[int(l[1])]
+    keep_running = True
+    parameter, constants_key = PARAMETERS.get(key)
 
-    print('What value would you like for the {}?'.format(l[0]))
+    constants = [EXAMPLES,CONDITIONS,INVALIDS]
+    examples, condition, invaild = [constant.get(constants_key) for constant in constants]
+
+    print('What value would you like for the {}?'.format(parameter))
     print('Please note that this is {}'.format(example))
-    while True:
+    while keep_running:
         inp = sys.stdin.readline().strip()
         if(condition(inp)):
             val = str(inp)
-            break
+            keep_running = False
         else:
             print('Sorry that was either  not a float or was {}, \
                   please try again'.format(invalid))
@@ -101,16 +138,17 @@ def OptimizerDefaultString(param):
     Returns:
     optimizer -- The optimizer code as a string.
     """
-
-    data = param[1][0]
+    
+    data_array = list(param[1])
+    key = int(data_array[0])
     optimizer = []
-    optimizer.append('optimizer = tf.train.{0}Optimizer('.format(_optimizers[data]))
-    if(data in _defaults[0]):
+    optimizer.append('optimizer = tf.train.{0}Optimizer('.format(OPTIMIZERS.get(key)))
+    if(key in DEFAULT.get(0)):
         optimizer.append(')')
-    elif(data in _defaults[1]):
-        optimizer.append('learning_rate={0})'.format(param[1][2]))
+    elif(key in DEFAULT.get(1)):
+        optimizer.append('learning_rate={0})'.format(data_array[2]))
     else:
-        optimizer.append('learning_rate={0}, momentum={1})'.format(param[1][2],param[1][3]))
+        optimizer.append('learning_rate={0}, momentum={1})'.format(data_array[2],data_array[3]))
 
     return ''.join(optimizer)
 
@@ -123,39 +161,22 @@ def OptimizerString(param):
     param -- a python list that contains the optimizer key and parameter settings.
 
     Returns:
-    optimizer -- The optimizer code as a string. 
+    optimizer -- The optimizer code as a string.
     """
+    data_array = list(param[1])
+    key = int(data_array[0])
+    string_meta_data = None
 
-    data = param[1][0]
     optimizer = []
-    optimizer.append('optimizer = tf.train.{0}'.format(_optimizers[data]))
-    optimizer.append('Optimizer(learning_rate={0}'.format(param[1][2]))
-    if(data == 0):
-        optimizer.append(')\n')
-    elif(data == 1):
-        optimizer.append(', rho={0}'.format(param[1][3]))
-        optimizer.append(', epsilon={0})\n'.format(param[1][4]))
-    elif(data == 2):
-        optimizer.append(', initial_accumulator_value={0})\n'.format(param[1][3]))
-    elif(data == 3):
-        optimizer.append(', initial_gradient_squared_accumulator_value={0}'.format(param[1][3]))
-        optimizer.append(', l1_regularization_strength={0}'.format(param[1][4]))
-        optimizer.append(', l2_regularization_strength={0})\n'.format(param[1][5]))
-    elif(data == 4):
-        optimizer.append(', momentum={0})\n'.format(param[1][3]))
-    elif(data == 5):
-        optimizer.append(', beta1={0}'.format(param[1][3]))
-        optimizer.append(', beta2={0}'.format(param[1][4]))
-        optimizer.append(', epsilon={0})\n'.format(param[1][5]))
-    elif(data == 6):
-        optimizer.append(', learning_rate_power={0}'.format(param[1][3]))
-        optimizer.append(', initial_accumulator_value={0}'.format(param[1][4]))
-        optimizer.append(', l1_regularization_strength={0}'.format(param[1][5]))
-        optimizer.append(', l2_regularization_strength={0})\n'.format(param[1][6]))
-    else:
-        optimizer.append(', decay={0}'.format(param[1][3]))
-        optimizer.append(', momentum={0}'.format(param[1][4]))
-        optimizer.append(', epsilon={0}'.format(param[1][5]))
+    optimizer.append('optimizer = tf.train.{0}'.format(OPTIMIZERS.get(key)))
+    optimizer.append('Optimizer(learning_rate={0}'.format(data_array[2]))
+    
+    string_meta_data = OPTIMIZER_STRING_COLLECTIONS.get(key,[('decay',3),('momentum',4),('epsilon',5)])
+    
+    for string, pos in string_meta_data:
+      optimizer.append(', {0}={1}'.format(string,data_array[pos]))
+    
+    optimizer.append(')\n')
 
     return ''.join(optimizer)
 
@@ -172,24 +193,25 @@ def getOptimizer():
     ary -- A string that is a valid python list containing the optimizer key and parameter settings.
     """
 
-    ary = '['
+    array = '['
     cns = ''
     df = 0
     key = 0
 
-    ary , key = ChooseOptimizer(ary)
-    ary , df = SetDefault(ary)
+    array , key = ChooseOptimizer(array)
+    array , df = SetDefault(array)
 
     if(df == 1):
-        ary = ary + getOptimizerDefaultParameters(key)
+        array += getOptimizerDefaultParameters(key)
     else:
-        ary = ary + getOptimizerParameters(key)
-    ary = ary + ']'
+        array += getOptimizerParameters(key)
+    
+    array += ']'
     os.system('cls' if os.name == 'nt' else 'clear')
     return ary
 
 
-def ChooseOptimizer(ary):
+def ChooseOptimizer(array):
     """
     Asks the user to choose an optimizer from the dictionary of choices.
 
@@ -201,20 +223,22 @@ def ChooseOptimizer(ary):
     key -- The chosen optimizer key as an int.
     """
 
+    keep_running = True
+
     print('What Optimizer from the list below do you want to optimize with?')
-    for key,value in _optimizers.items():
+    for key,value in OPTIMIZERS.items():
         print('{0}: {1}'.format(key,value))
-    while True:
+    while keep_running:
         i = sys.stdin.readline().strip()
         if(i.isdigit() and (-1<int(i)<8)):
             key = int(i)
-            ary = ary + str(i) + ','
-            break
+            array += str(i) + ','
+            keep_running = False
         else:
             print('Sorry that was not an integer, or an option, please try again.')
 
     os.system('cls' if os.name == 'nt' else 'clear')
-    return ary,key
+    return array,key
 
 
 def SetDefault(ary):
@@ -230,13 +254,15 @@ def SetDefault(ary):
     """
 
     df = 0
+    keep_running = True
+
     print('Would you like to use the default settings or not?\nDefault: 1\tNot: 0.')
-    while True:
+    while keep_running:
         i = sys.stdin.readline().strip()
         if(i.isdigit() and (-1 < int(i) < 2)):
             df = int(i)
             ary = ary + str(i) + ','
-            break
+            keep_running = False
         else:
             print('Sorry that was not an integer, or an option, please try again.')
 
@@ -256,9 +282,9 @@ def getOptimizerDefaultParameters(key):
     """
 
     s = ''
-    if(key in _defaults[1]):
+    if(key in DEFAULTS[1]):
         s = ''
-    elif(key in _defaults[0]):
+    elif(key in DEFAULTS[0]):
         l = getParameter(0)
         s = l
     else:
@@ -280,43 +306,10 @@ def getOptimizerParameters(key):
     Returns:
     s -- The string of optimizer parameter values as a comma separated string.
     """
-
-    s = ''
-    l = getParameter(0)
-    if(key == 0):
-        s = l
-    elif(key == 1):
-        r = getParameter(2)
-        e = getParameter(3)
-        s = l + ',' + r + ',' + e
-    elif(key == 2):
-        initial = getParameter(4)
-        s = l + ',' + initial
-    elif(key == 3):
-        gsa = getParameter(5)
-        l1 = getParameter(6)
-        l2 = getParameter(7)
-        s = l + ',' + gsa + ',' + l1 + ',' + l2
-    elif(key == 4):
-        m = getParameter(1)
-        s = l + ',' + m
-    elif(key == 5):
-        b1 = getParameter(8)
-        b2 = getParameter(9)
-        e = getParameter(3)
-        s = l + ',' + b1 + ',' + b2 + ',' + e
-    elif(key == 6):
-        lr = getParameter(10)
-        a = getParameter(4)
-        l1 = getParameter(6)
-        l2 = getParameter(7)
-        s = l + ',' + lr + ',' + a + ',' + l1 + ',' + l2
-    else:
-        d = getParameter(11)
-        m = getParameter(1)
-        e = getParameter(3)
-        s = l + ',' + d + ',' + m + ',' + e
-
-    return s
+    
+    data = PARAMETER_DICTIONARY.get(key,[0,11,1,3])
+    parameters = [getParameter(val) for val in data]
+    
+    return ','.join(parameters)
 
 

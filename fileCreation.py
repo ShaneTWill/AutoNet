@@ -9,14 +9,14 @@ import model as ml
 
 
 # Line to specify that the file is a script for python.
-header = '#!/usr/bin/env python'
+HEADER = '#!/usr/bin/env python'
 
 # import statements that occur at the top of the file.
-im = 'import tensorflow as tf\nimport math'
+IMPORTS = 'import tensorflow as tf\nimport math'
 
 
 # Dictionary of possible cost functions
-_cost = {
+COST = {
         0 : 'tf.sqrt(tf.reduce_mean(tf.square(tf.sub(pred,act))))'
         ,1 : 'tf.reduce_mean(tf.square(tf.sub(pred,act)))'
         ,2 : 'tf.reduce_mean(tf.abs(tf.sub(pred,act)))'
@@ -24,6 +24,15 @@ _cost = {
         ,4 : 'tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred,act))'
         }
 
+BIASES = 'biases = tf.Variable(tf.zeros([{0}]){1}, name=\'biases\')'
+
+OUTPUT = 'out = tf.{}({},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\'))'
+
+HIDDEN_LAYER = 'h{} = tf.nn.{}(tf.matmul({},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))'
+
+MEMORY_LOCATION = '{} = tf.placeholder({},[None,{}])'
+
+WEIGHTS = 'weights = tf.Variable(tf.truncated_normal([{0},{1}], stddev = 1.0/math.sqrt(float({0}))), name=\'weights\')'
 
 def CreateDocString(struct,inp,out,t):
     """
@@ -44,21 +53,20 @@ def CreateDocString(struct,inp,out,t):
     inputs = inp[0][1]
     outputs = out[0][1]
     date = time.strftime('%m/%d/%Y')
-    doc = '''\"\"\"\n   This is a Neural Network created to perform {0}.
+    doc = '''\"\"\"\n   This is a Neural Network created to perform {}.
 
-    Depth: {1}
-    Inputs: {2}
-    Outputs: {3}
-    Date: {4}\n\"\"\"'''
+    Depth: {}
+    Inputs: {}
+    Outputs: {}
+    Date: {}\n\"\"\"'''
 
-    if(t=='R'):
+    if(t is 'R'):
         modeltype = 'regression'
 
-    if(len(struct)-1 == -1):
+    if(len(struct)-1 is -1):
         depth = 0
 
-    data = [modeltype,depth,inputs,outputs,date]
-    return doc.format(*data)
+    return doc.format(modeltype,depth,inputs,outputs,date)
 
 
 def CreateLayer(nodesInPreviousLayer, nodesInLayer
@@ -79,64 +87,52 @@ def CreateLayer(nodesInPreviousLayer, nodesInLayer
     code -- The code for a layer in a neural network as a string.
     """
 
-    layer = 'hidden{0}'.format(currentLayer)
-    previousLayer = currentLayer-1
-    activation = ml._activations[activationKey]
-    biases = 'biases = tf.Variable(tf.zeros([{0}]), name=\'biases\')'.format(nodesInLayer)
-    equation = 'h{0} = tf.nn.{1}(tf.matmul(h{2},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'.format(currentLayer
-                                                                                                                       ,activation
-                                                                                                                       ,previousLayer
-                                                                                                                       )
-    code = '''
-    with tf.name_scope(\'{0}\'):
-        weights = tf.Variable(tf.truncated_normal([{1},{2}], stddev = 1.0/math.sqrt(float({1}))), name=\'weights\')
-        {3}
-        {4}'''
+    previousLayer = currentLayer - 1
+    last_layer = currentLayer is numberOfLayers + 1
+    only_layer = previousLayer is 0
 
-    if(currentLayer == (numberOfLayers+1) and (previousLayer) == 0):
-        layer = 'linearModel'
-        equation = __CreateOutputEquation(modelType,previousLayer,currentLayer,numberOfLayers)
-    elif(currentLayer == numberOfLayers + 1):
-        layer = 'output'
-        equation = __CreateOutputEquation(modelType,previousLayer,currentLayer,numberOfLayers)
+    code = '''\n  with tf.name_scope(\'{}\'):\n    {}\n    {}\n    {}\n'''
+
+    activation = ml._activations.get(activationKey)
+    weights = __CreateWeights(nodesInPreviousLayer,nodesInLayer)
+    biases = __CreateBiases(activationKey,nodesInLayer)
+
+    if last_layer:
+      layer = 'linearModel' if only_layer else 'output'
+      equation = __CreateOutputEquation(modelType,previousLayer,currentLayer,numberOfLayers)
     else:
-        biases = __CreateBiases(activationKey,nodesInLayer)
-        equation = __CreateHiddenLayerEquation(currentLayer,numberOfLayers,activation)
+      layer = 'hidden{}'.format(currentLayer)
+      equation = __CreateHiddenLayerEquation(currentLayer,numberOfLayers,activation)
 
-    data = [layer,nodesInPreviousLayer,nodesInLayer,biases,equation]
-    return code.format(*data)
+    return code.format(layer,weights,biases,equation)
 
+def __CreateWeights(nodesInPreviousLayer,nodesInLayer):
+    return WEIGHTS.format(nodesInPreviousLayer,nodesInLayer)
 
 def __CreateOutputEquation(modelType,prevLayNum,currentLayNum,numberOfLayers):
-    equation = 'out = tf.matmul(h{0},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\'))\n'.format(prevLayNum)
-    if(modelType == 'C'):
-        equation = 'out = tf.nn.sigmoid(tf.matmul(h{0},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'.format(prevLayNum)
-        if (currentLayNum == (numberOfLayers+1) and (prevLayNum == 0)):
-            equation = 'out = tf.nn.sigmoid(tf.matmul(x,tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'
-    elif(currentLayNum == (numberOfLayers+1) and (prevLayNum == 0)):
-        equation = 'out = tf.matmul(x,tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\'))\n'
+    is_last_layer = currentLayNum is numberOfLayers + 1
+    only_layer = prevLayNum is 0
+    regression = is_last_layer and only_layer
 
-    return equation
+    function = 'nn.sigmoid' if modelType is 'C' else 'matmul'
+    input_values = 'x' if regression else 'tf.matmul(h{}'.format(prevLayNum)
+
+    return OUTPUT.format(function,input_values)
 
 
 def __CreateHiddenLayerEquation(layerNumber,numberOfLayers,activation):
-    equation = 'h{0} = tf.nn.{1}(tf.matmul(h{2},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'.format(layerNumber
-                                                                                                                       ,activation
-                                                                                                                       ,layerNumber-1
-                                                                                                                       )
-    if(int(layerNumber) == 1 and layerNumber != (numberOfLayers+1)):
-        equation = 'h{0} = tf.nn.{1}(tf.matmul(x,tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))\n'.format(layerNumber
-                                                                                                                        ,activation
-                                                                                                                       )
-    return equation
+    first_layer = int(layerNumber) is 1
+    more_than_one_layer = layerNumber is not numberOfLayers + 1
+    
+    inputs = 'x' if first_layer and more_than_one_layer else 'h{}'.format(layerNumber-1)
+
+    return HIDDEN_LAYER.format(layerNumber,activation,inputs)
 
 
 def __CreateBiases(activationKey,layerNodeCount):
-    biases = 'biases = tf.Variable(tf.zeros([{0}]), name=\'biases\')'.format(layerNodeCount)
-    if(activationKey == 0):
-        biases = 'biases = tf.Variable(tf.zeros([{0}]) + 0.1 , name=\'biases\')'.format(layerNodeCount)
+    jitter = ' + 0.1' if activationKey is 0 else ''
 
-    return biases
+    return BIASES.format(layerNodeCount,jitter)
 
 
 def CreatePlaceholder(data,control):
@@ -151,11 +147,10 @@ def CreatePlaceholder(data,control):
     placeholder -- The Output placeholder.
     """
 
-    placeholder = 'X = tf.placeholder({0},[None,{1}])\n'
-    if(control == 1):
-        placeholder = 'Y = tf.placeholder({0},[None,{1}])\n'
-
-    return placeholder.format(*(data[0]))
+    variable = 'Y' if control is 1 else 'X'
+    data_type, size = list(data[0])
+    
+    return MEMORY_LOCATION.format(variable,data_type,size)
 
 
 def CreateNetwork(struct,mdlname,typ,inp,ou):
@@ -174,19 +169,21 @@ def CreateNetwork(struct,mdlname,typ,inp,ou):
         network -- The code for the model as a string.
     """
 
+    
     network = []
+    length_of_struct = len(struct)
     network.append('def {0}(x):\n'.format(mdlname))
     numberOfLayers = len(struct)+1
     for i in range(numberOfLayers):
         currentLayer = (i+1)
-        if(i == len(struct) and len(struct) != 0):
-            parameters = [struct[i-1][0],ou[0][1],currentLayer,struct[i-1][1],len(struct),typ]
-        elif(i == 0 and len(struct) != 0):
-            parameters = [inp[0][1],struct[i][0],currentLayer,struct[i][1],len(struct),typ]
-        elif(i == 0 and len(struct) == 0):
-            parameters = [inp[0][1],ou[0][1],currentLayer,0,len(struct),typ]
+        if(i == length_of_struct and length_of_struct != 0):
+            parameters = [struct[i-1][0],ou[0][1],currentLayer,struct[i-1][1],length_of_struct,typ]
+        elif(i == 0 and length_of_struct != 0):
+            parameters = [inp[0][1],struct[i][0],currentLayer,struct[i][1],length_of_struct,typ]
+        elif(i == 0 and length_of_struct == 0):
+            parameters = [inp[0][1],ou[0][1],currentLayer,0,length_of_struct,typ]
         else:
-            parameters = [struct[i-1][0],struct[i][0],currentLayer,struct[i][1],len(struct),typ]
+            parameters = [struct[i-1][0],struct[i][0],currentLayer,struct[i][1],length_of_struct,typ]
 
         network.append(CreateLayer(*parameters))
 
@@ -212,7 +209,7 @@ def CreateCost(lrn):
     return cost'''
 
     key = lrn[0][0] # Dictionary key
-    equation = _cost[key] # Cost function
+    equation = COST.get(key) # Cost function
     return cost.format(equation)
 
 
@@ -258,8 +255,10 @@ def CreateOptimizer(lrn):
 
     return opt'''
 
+    default = int(lrn[1][1])
+
     data = op.OptimizerString(lrn)
-    if(lrn[1][1] == 1):
+    if(default == 1):
         data = op.OptimizerDefaultString(lrn)
 
     return optimize.format(data)
@@ -280,11 +279,11 @@ def CreateModel(x,y,ty,hidden,learn,filename,modelname):
     modelname -- Name of the model
     """
     with open(str(filename)+'.py','w') as f:
-        f.write(header)
+        f.write(HEADER)
         [f.write('\n') for _ in range(3)]
         f.write(CreateDocString(struct=hidden,inp=x,out=y,t=ty))
         [f.write('\n') for _ in range(3)]
-        f.write(im)
+        f.write(IMPORTS)
         [f.write('\n') for _ in range(3)]
         f.write('#')
         [f.write('=') for _ in range(50)]
@@ -384,13 +383,11 @@ def getTrainingSettings():
     A python array that is populated with the cost function parameters and the optimizer parameters.
     """
 
-    ary ='['
-    e =']'
     met = cs.getMetric()
     train = op.getOptimizer()
 
-    ary = ary + met +','+ train + e
+    array = '[' + met +','+ train + ']'
 
-    return eval(ary)
+    return eval(array)
 
 

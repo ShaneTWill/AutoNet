@@ -6,7 +6,7 @@ import sys
 
 
 # Dictionary of possible activation functions.
-_activations = {
+ACTIVATIONS = {
                 0 : 'relu'
                 ,1 : 'relu6'
                 ,2 : 'crelu'
@@ -17,22 +17,22 @@ _activations = {
 
 # Dictionary of input and output prompts along with key values for the
 # __conditions and __errors dictionaries
-_prompts = {
-            0 : 'How many inputs are there?,0,0'
-            ,1 : 'How many outputs are there?\nIf this is a classification model that uses one-hot encoding enter number of possibile values.,0,0'
-            ,2 : 'First thing is first: enter \'R\' for a regression model and \'C\' for a classification problem.,1,1'
-            ,3 : 'Now how many hidden layers are there?,2,2'
+PROMPTS = {
+            0 : ('How many inputs are there?',0,0)
+            ,1 : ('How many outputs are there?\nIf this is a classification model that uses one-hot encoding enter number of possibile values.',0,0)
+            ,2 : ('First thing is first: enter \'R\' for a regression model and \'C\' for a classification problem.',1,1)
+            ,3 : ('Now how many hidden layers are there?',2,2)
             }
 
 # Collections of boolean statements as lambda functions
-_conditions = {
+CONDITIONS = {
             0 : (lambda i: i.isdigit() and int(i) > 0)
             ,1 : (lambda i: i in {'C','c','R','r'})
             ,2 : (lambda i: i.isdigit() and int(i) > -1)
             }
 
 # Error messages
-_errors = {
+ERRORS = {
         0 : 'Sorry that was either not a number or less than 1. try again'
         ,1 : 'Sorry that is not an option try again.'
         ,2 : 'Sorry that was either not an integer or less than zero.'
@@ -55,17 +55,19 @@ def _getData(key):
     data - The information that the user has inputed into the system.
 
     """
-    data = ''
-    prompt , condKey, err = _prompts[key].split(',') # Get the prompt/keys
-    condition = _conditions[int(condKey)] # Conditional lambda
-    error = _errors[int(err)] # The error message
 
-    while True:
+    data = ''
+    keep_running = True
+    prompt , condKey, err = PROMPTS.get(key) # Get the prompt/keys
+    condition = CONDITIONS.get(condKey) # Conditional lambda
+    error = ERRORS.get(err) # The error message
+
+    while keep_running:
         print(prompt)
         inp = sys.stdin.readline().strip()
         if(condition(inp)):
             data = inp
-            break
+            keep_running = False
         else:
             print(error)
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -167,12 +169,12 @@ def getActivationFunction(cnt,cns):
     n = 0
     print('For layer {}.'.format(cnt+1))
     print('Below is a list of the activation functions supported, choose one.')
-    for key, value in _activations.items():
+    for key, value in ACTIVATIONS.items():
         print('{}: {}'.format(key,value))
 
     while True:
         n = sys.stdin.readline().strip()
-        if (n.isdigit() and (-1 < int(n) < len(_activations))):
+        if (n.isdigit() and (-1 < int(n) < len(ACTIVATIONS))):
             cns = cns + str(n) + ']'
             break
         else:

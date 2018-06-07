@@ -31,64 +31,64 @@ PROMPTS = {
         }
 
 def getMetric():
-    """
-    Calls the methods to choose the cost metric and the number of epochs to train over.
+  """
+  Calls the methods to choose the cost metric and the number of epochs to train over.
 
-    Once the cost metric and number of epochs have been chosen a string is returned.
-    This string takes the form of a python list with the data stored in the following
-    format: ['metric','epochs']
+  Once the cost metric and number of epochs have been chosen a string is returned.
+  This string takes the form of a python list with the data stored in the following
+  format: ['metric','epochs']
 
-    Returns:
-        A string that is valid python code for the creation of a list.
+  Returns:
+    A string that is valid python code for the creation of a list.
 
-    Example: "[0,500]"
-    """
+  Example: "[0,500]"
+  """
 
-    array = []
-    array.append('[')
-    for num in range(2):
-        array = getData(num,array)
-    array.append(']')
+  array = []
+  array.append('[')
+  for num in range(2):
+    array = getData(num,array)
+  array.append(']')
 
-    return ''.join(array)
+  return ''.join(array)
 
 
 def getData(key,input_array):
-    """
-    Uses data that the user inputs and and returns the modified
-    string ary. For the creation of a list of values.
+  """
+  Uses data that the user inputs and and returns the modified
+  string ary. For the creation of a list of values.
 
-    Keyword arguments:
-    key -- An integer that is used to pull the correct data from the dictionaries
-            and perform flow control.
+  Keyword arguments:
+  key -- An integer that is used to pull the correct data from the dictionaries
+        and perform flow control.
 
-    input_array -- A list of strings to append the new values to.
+  input_array -- A list of strings to append the new values to.
 
-    Returns:
+  Returns:
     array -- The inputted string with the data concatenated onto it.
-    """
+  """
 
-    keep_running = True
-    constants = [PROMPTS,CONDITIONS,ERRORS]
+  keep_running = True
+  constants = [PROMPTS,CONDITIONS,ERRORS]
 
-    array = list(input_array)
-    prompt, condition, error = [constant.get(key) for constant in constants]
+  array = list(input_array)
+  prompt, condition, error = [constant.get(key) for constant in constants]
 
-    print(prompt)
-    if key == 0:
-        for k, v in METRICS.items():
-            print('{}: {}'.format(k,v))
+  print(prompt)
+  if key == 0:
+    for k, v in METRICS.items():
+      print('{}: {}'.format(k,v))
 
-    while keep_running:
-        user_input = sys.stdin.readline().strip()
-        if(condition(user_input)):
-            for item in [str(user_input),',']:
-                array.append(item)
-            keep_running = False
-        else:
-            print(error)
+  while keep_running:
+    user_input = sys.stdin.readline().strip()
+    if(condition(user_input)):
+      for item in [str(user_input),',']:
+        array.append(item)
+      keep_running = False
+    else:
+      print(error)
 
-    os.system('cls' if os.name == 'nt' else 'clear')
+  os.system('cls' if os.name == 'nt' else 'clear')
 
-    return array
+  return array
 

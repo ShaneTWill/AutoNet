@@ -96,220 +96,220 @@ OPTIMIZER_STRING_COLLECTIONS = {
 
 
 def getParameter(key):
-    """
-    Asks the user to select the value for a parameter.
+  """
+  Asks the user to select the value for a parameter.
 
-    Keyword arguments:
-    key -- An integer that corresponds to a key in the param dictonary.
+  Keyword arguments:
+  key -- An integer that corresponds to a key in the param dictonary.
 
-    Returns:
-    val -- The value selected by the user.
-    """
+  Returns:
+  val -- The value selected by the user.
+  """
 
-    val = ''
-    keep_running = True
-    parameter, constants_key = PARAMETERS.get(key)
+  val = ''
+  keep_running = True
+  parameter, constants_key = PARAMETERS.get(key)
 
-    constants = [EXAMPLES,CONDITIONS,INVALIDS]
-    examples, condition, invaild = [constant.get(constants_key) for constant in constants]
+  constants = [EXAMPLES,CONDITIONS,INVALIDS]
+  examples, condition, invaild = [constant.get(constants_key) for constant in constants]
 
-    print('What value would you like for the {}?'.format(parameter))
-    print('Please note that this is {}'.format(example))
-    while keep_running:
-        inp = sys.stdin.readline().strip()
-        if(condition(inp)):
-            val = str(inp)
-            keep_running = False
-        else:
-            print('Sorry that was either  not a float or was {}, \
-                  please try again'.format(invalid))
-    os.system('cls' if os.name == 'nt' else 'clear')
+  print('What value would you like for the {}?'.format(parameter))
+  print('Please note that this is {}'.format(example))
+  while keep_running:
+    inp = sys.stdin.readline().strip()
+    if(condition(inp)):
+      val = str(inp)
+      keep_running = False
+    else:
+      print('Sorry that was either  not a float or was {}, please try again'.format(invalid))
 
-    return val
+  os.system('cls' if os.name == 'nt' else 'clear')
+
+  return val
 
 
 def OptimizerDefaultString(param):
-    """
-    Creates the code string for an optimizer if the default flag was set to true.
+  """
+  Creates the code string for an optimizer if the default flag was set to true.
 
-    Keyword arguments:
-    param -- A python list that contains the optimizer key and parameter settings.
+  Keyword arguments:
+  param -- A python list that contains the optimizer key and parameter settings.
 
-    Returns:
+  Returns:
     optimizer -- The optimizer code as a string.
-    """
-    
-    data_array = list(param[1])
-    key = int(data_array[0])
-    optimizer = []
-    optimizer.append('optimizer = tf.train.{0}Optimizer('.format(OPTIMIZERS.get(key)))
-    if(key in DEFAULT.get(0)):
-        optimizer.append(')')
-    elif(key in DEFAULT.get(1)):
-        optimizer.append('learning_rate={0})'.format(data_array[2]))
-    else:
-        optimizer.append('learning_rate={0}, momentum={1})'.format(data_array[2],data_array[3]))
+  """
 
-    return ''.join(optimizer)
+  data_array = list(param[1])
+  key = int(data_array[0])
+  optimizer = []
+  optimizer.append('optimizer = tf.train.{0}Optimizer('.format(OPTIMIZERS.get(key)))
+  if(key in DEFAULT.get(0)):
+    optimizer.append(')')
+  elif(key in DEFAULT.get(1)):
+    optimizer.append('learning_rate={0})'.format(data_array[2]))
+  else:
+    optimizer.append('learning_rate={0}, momentum={1})'.format(data_array[2],data_array[3]))
+
+  return ''.join(optimizer)
 
 
 def OptimizerString(param):
-    """
-    Creates the code for a non-default optimizer string and returns it.
+  """
+  Creates the code for a non-default optimizer string and returns it.
 
-    Keyword arguments:
-    param -- a python list that contains the optimizer key and parameter settings.
+  Keyword arguments:
+  param -- a python list that contains the optimizer key and parameter settings.
 
-    Returns:
+  Returns:
     optimizer -- The optimizer code as a string.
-    """
-    data_array = list(param[1])
-    key = int(data_array[0])
-    string_meta_data = None
+  """
+  data_array = list(param[1])
+  key = int(data_array[0])
+  string_meta_data = None
 
-    optimizer = []
-    optimizer.append('optimizer = tf.train.{0}'.format(OPTIMIZERS.get(key)))
-    optimizer.append('Optimizer(learning_rate={0}'.format(data_array[2]))
-    
-    string_meta_data = OPTIMIZER_STRING_COLLECTIONS.get(key,[('decay',3),('momentum',4),('epsilon',5)])
-    
-    for string, pos in string_meta_data:
-      optimizer.append(', {0}={1}'.format(string,data_array[pos]))
-    
-    optimizer.append(')\n')
+  optimizer = []
+  optimizer.append('optimizer = tf.train.{0}'.format(OPTIMIZERS.get(key)))
+  optimizer.append('Optimizer(learning_rate={0}'.format(data_array[2]))
 
-    return ''.join(optimizer)
+  string_meta_data = OPTIMIZER_STRING_COLLECTIONS.get(key,[('decay',3),('momentum',4),('epsilon',5)])
+
+  for string, pos in string_meta_data:
+    optimizer.append(', {0}={1}'.format(string,data_array[pos]))
+
+  optimizer.append(')\n')
+
+  return ''.join(optimizer)
 
 
 def getOptimizer():
-    """
-    Gets the optimizer settings and returns a string that is a list of optimizer settings.
+  """
+  Gets the optimizer settings and returns a string that is a list of optimizer settings.
 
-    This method gets all the information needed for the optimizer. These values are then
-    used to construct a python list with each position in the list corresponding to a set
-    of values for the optimizer.
+  This method gets all the information needed for the optimizer. These values are then
+  used to construct a python list with each position in the list corresponding to a set
+  of values for the optimizer.
 
-    Returns:
+  Returns:
     ary -- A string that is a valid python list containing the optimizer key and parameter settings.
-    """
+  """
 
-    array = '['
-    cns = ''
-    df = 0
-    key = 0
+  array = '['
+  cns = ''
+  df = 0
+  key = 0
 
-    array , key = ChooseOptimizer(array)
-    array , df = SetDefault(array)
+  array , key = ChooseOptimizer(array)
+  array , df = SetDefault(array)
 
-    if(df == 1):
-        array += getOptimizerDefaultParameters(key)
-    else:
-        array += getOptimizerParameters(key)
-    
-    array += ']'
-    os.system('cls' if os.name == 'nt' else 'clear')
-    return ary
+  if(df == 1):
+    array += getOptimizerDefaultParameters(key)
+  else:
+    array += getOptimizerParameters(key)
+
+  array += ']'
+  os.system('cls' if os.name == 'nt' else 'clear')
+  return ary
 
 
 def ChooseOptimizer(array):
-    """
-    Asks the user to choose an optimizer from the dictionary of choices.
+  """
+  Asks the user to choose an optimizer from the dictionary of choices.
 
-    Keyword arguments:
-    ary --  A string used to create the list of the optimizer parameters.
+  Keyword arguments:
+  ary --  A string used to create the list of the optimizer parameters.
 
-    Returns:
+  Returns:
     ary -- The modified string ary.
     key -- The chosen optimizer key as an int.
-    """
+  """
 
-    keep_running = True
+  keep_running = True
 
-    print('What Optimizer from the list below do you want to optimize with?')
-    for key,value in OPTIMIZERS.items():
-        print('{0}: {1}'.format(key,value))
-    while keep_running:
-        i = sys.stdin.readline().strip()
-        if(i.isdigit() and (-1<int(i)<8)):
-            key = int(i)
-            array += str(i) + ','
-            keep_running = False
-        else:
-            print('Sorry that was not an integer, or an option, please try again.')
+  print('What Optimizer from the list below do you want to optimize with?')
+  for key,value in OPTIMIZERS.items():
+    print('{0}: {1}'.format(key,value))
+  while keep_running:
+    i = sys.stdin.readline().strip()
+    if(i.isdigit() and (-1<int(i)<8)):
+      key = int(i)
+      array += str(i) + ','
+      keep_running = False
+    else:
+      print('Sorry that was not an integer, or an option, please try again.')
 
-    os.system('cls' if os.name == 'nt' else 'clear')
-    return array,key
+  os.system('cls' if os.name == 'nt' else 'clear')
+  return array,key
 
 
 def SetDefault(ary):
-    """
-    Asks the user for the value of the default key in the optimizer parameter list.
+  """
+  Asks the user for the value of the default key in the optimizer parameter list.
 
-    Keyword arguments:
-    ary -- A string that will be modified to include in default parameter.
+  Keyword arguments:
+  ary -- A string that will be modified to include in default parameter.
 
-    Returns:
+  Returns:
     ary -- The modified version of the input string ary.
     df -- A binary value to signify the selection of a default optimizer.
-    """
+  """
 
-    df = 0
-    keep_running = True
+  df = 0
+  keep_running = True
 
-    print('Would you like to use the default settings or not?\nDefault: 1\tNot: 0.')
-    while keep_running:
-        i = sys.stdin.readline().strip()
-        if(i.isdigit() and (-1 < int(i) < 2)):
-            df = int(i)
-            ary = ary + str(i) + ','
-            keep_running = False
-        else:
-            print('Sorry that was not an integer, or an option, please try again.')
+  print('Would you like to use the default settings or not?\nDefault: 1\tNot: 0.')
+  while keep_running:
+    i = sys.stdin.readline().strip()
+    if(i.isdigit() and (-1 < int(i) < 2)):
+      df = int(i)
+      ary = ary + str(i) + ','
+      keep_running = False
+    else:
+      print('Sorry that was not an integer, or an option, please try again.')
 
-    os.system('cls' if os.name == 'nt' else 'clear')
-    return ary,df
+  os.system('cls' if os.name == 'nt' else 'clear')
+  return ary,df
 
 
 def getOptimizerDefaultParameters(key):
-    """
-    Calls all methods needed for optimizers with only default parameters.
+  """
+  Calls all methods needed for optimizers with only default parameters.
 
-    Keyword arguments:
-    key -- The optimizer key.
+  Keyword arguments:
+  key -- The optimizer key.
 
-    Returns:
+  Returns:
     s -- String of optimizer settings as comma separated values.
-    """
+  """
 
+  s = ''
+  if(key in DEFAULTS[1]):
     s = ''
-    if(key in DEFAULTS[1]):
-        s = ''
-    elif(key in DEFAULTS[0]):
-        l = getParameter(0)
-        s = l
-    else:
-        l = getParameter(0)
-        m = getParameter(1)
-        s = l + ',' + m
+  elif(key in DEFAULTS[0]):
+    l = getParameter(0)
+    s = l
+  else:
+    l = getParameter(0)
+    m = getParameter(1)
+    s = l + ',' + m
 
-    return s
+  return s
 
 
 def getOptimizerParameters(key):
-    """
-    Calls the parameter selection methods needed for each optimizer type and returns a string of comma separated
-    values for each optimizer.
+  """
+  Calls the parameter selection methods needed for each optimizer type and returns a string of comma separated
+  values for each optimizer.
 
-    Keyword arguments:
-    key -- The optimizer of choice.
+  Keyword arguments:
+  key -- The optimizer of choice.
 
-    Returns:
-    s -- The string of optimizer parameter values as a comma separated string.
-    """
+  Returns:
+  s -- The string of optimizer parameter values as a comma separated string.
+  """
     
-    data = PARAMETER_DICTIONARY.get(key,[0,11,1,3])
-    parameters = [getParameter(val) for val in data]
+  data = PARAMETER_DICTIONARY.get(key,[0,11,1,3])
+  parameters = [getParameter(val) for val in data]
     
-    return ','.join(parameters)
+  return ','.join(parameters)
 
 

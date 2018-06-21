@@ -29,7 +29,7 @@ OUTPUT = 'out = tf.{}({},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64
 
 HIDDEN_LAYER = 'h{} = tf.nn.{}(tf.matmul({},tf.cast(weights,\'float64\') + tf.cast(biases,\'float64\')))'
 
-MEMORY_LOCATION = '{} = tf.placeholder({},[None,{}])'
+MEMORY_LOCATION = '{} = tf.placeholder({},[None,{}])\n'
 
 WEIGHTS = 'weights = tf.Variable(tf.truncated_normal([{0},{1}], stddev = 1.0/math.sqrt(float({0}))), name=\'weights\')'
 
@@ -52,12 +52,7 @@ def CreateDocString(struct,inp,out,t):
   inputs = inp[0][1]
   outputs = out[0][1]
   date = time.strftime('%m/%d/%Y')
-  doc = '''\"\"\"\n   This is a Neural Network created to perform {}.
-
-  Depth: {}
-  Inputs: {}
-  Outputs: {}
-  Date: {}\n\"\"\"'''
+  doc = '''\"\"\"\n  This is a Neural Network created to perform {}.\n\n  Depth: {}\n  Inputs: {}\n  Outputs: {}\n  Date: {}\n\"\"\"'''
 
   if(t is 'R'):
     modeltype = 'regression'
@@ -90,7 +85,7 @@ def CreateLayer(nodesInPreviousLayer, nodesInLayer, currentLayer, activationKey,
 
   code = '''\n  with tf.name_scope(\'{}\'):\n    {}\n    {}\n    {}\n'''
 
-  activation = ml._activations.get(activationKey)
+  activation = ml.ACTIVATIONS.get(activationKey)
   weights = __CreateWeights(nodesInPreviousLayer,nodesInLayer)
   biases = __CreateBiases(activationKey,nodesInLayer)
 
@@ -112,7 +107,7 @@ def __CreateOutputEquation(modelType,prevLayNum,currentLayNum,numberOfLayers):
   regression = is_last_layer and only_layer
 
   function = 'nn.sigmoid' if modelType is 'C' else 'matmul'
-  input_values = 'x' if regression else 'tf.matmul(h{}'.format(prevLayNum)
+  input_values = 'x' if regression else 'h{}'.format(prevLayNum)
 
   return OUTPUT.format(function,input_values)
 
@@ -168,8 +163,8 @@ def CreateNetwork(struct,mdlname,typ,inp,ou):
 
   network = []
   length_of_struct = len(struct)
+  numberOfLayers = length_of_struct + 1
   network.append('def {0}(x):\n'.format(mdlname))
-  numberOfLayers = len(struct)+1
   for i in range(numberOfLayers):
     currentLayer = (i+1)
     if(i is 0):
@@ -177,12 +172,12 @@ def CreateNetwork(struct,mdlname,typ,inp,ou):
       outputs, param = (struct[i][0],struct[i][1]) if length_of_struct is not 0 else (ou[0][1],0) 
     else:
       inputs = struct[i-1][0]
-      outputs , param (ou[0][1],struct[i-1][1]) if length_of_struct is not 0 else (struct[i][0],struct[i][1])
+      outputs, param = (ou[0][1],struct[i-1][1]) if length_of_struct is i  else (struct[i][0],struct[i][1])
 
-  parameters = [inputs,outputs,currentLayer,param,length_of_struct,typ]
+    parameters = [inputs,outputs,currentLayer,param,length_of_struct,typ]
 
-  network.append(CreateLayer(*parameters))
-  network.append('\n    return out\n\n\n')
+    network.append(CreateLayer(*parameters))
+  network.append('\n  return out\n\n\n')
   return ''.join(network)
 
 

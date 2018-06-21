@@ -116,7 +116,7 @@ def getHiddenLayers():
       cns = ''
     else:
       ary += cns + ']'
-      cnt += 1
+    cnt += 1
 
   if (int(i) == 0):
     ary = ary + ']'

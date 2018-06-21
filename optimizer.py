@@ -171,6 +171,8 @@ def OptimizerString(param):
   optimizer.append('optimizer = tf.train.{0}'.format(OPTIMIZERS.get(key)))
   optimizer.append('Optimizer(learning_rate={0}'.format(data_array[2]))
 
+  # Get the string metadata if the key is invalid return the list of
+  # [('decay',3),('momentum',4),('epsilon',5)]
   string_meta_data = OPTIMIZER_STRING_COLLECTIONS.get(key,[('decay',3),('momentum',4),('epsilon',5)])
 
   for string, pos in string_meta_data:

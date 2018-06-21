@@ -14,7 +14,7 @@ METRICS = {
 
 # Dictionary of conditional boolean statements used.
 CONDITIONS = {
-            0: (lambda i: i.isdigit() and (-1 < int(i) < len(_metrics)))
+            0: (lambda i: i.isdigit() and (-1 < int(i) < len(METRICS)))
             ,1: (lambda i: i.isdigit() and int(i) > 0)
             }
 

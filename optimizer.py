@@ -111,7 +111,7 @@ def getParameter(key):
   parameter, constants_key = PARAMETERS.get(key)
 
   constants = [EXAMPLES,CONDITIONS,INVALIDS]
-  examples, condition, invaild = [constant.get(constants_key) for constant in constants]
+  example, condition, invaild = [constant.get(constants_key) for constant in constants]
 
   print('What value would you like for the {}?'.format(parameter))
   print('Please note that this is {}'.format(example))
@@ -210,7 +210,7 @@ def getOptimizer():
 
   array += ']'
   os.system('cls' if os.name == 'nt' else 'clear')
-  return ary
+  return array
 
 
 def ChooseOptimizer(array):
@@ -308,10 +308,8 @@ def getOptimizerParameters(key):
   Returns:
   s -- The string of optimizer parameter values as a comma separated string.
   """
-    
+
   data = PARAMETER_DICTIONARY.get(key,[0,11,1,3])
   parameters = [getParameter(val) for val in data]
-    
+
   return ','.join(parameters)
-
-

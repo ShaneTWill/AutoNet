@@ -8,7 +8,7 @@ import optimizer as op
 import model as ml
 
 
-# Line to specify that the file is a script for python.
+# Line to specify that the file is a python script.
 HEADER = '#!/usr/bin/env python'
 
 # import statements that occur at the top of the file.
@@ -169,7 +169,7 @@ def CreateNetwork(struct,mdlname,typ,inp,ou):
     currentLayer = (i+1)
     if(i is 0):
       inputs = inp[0][1]
-      outputs, param = (struct[i][0],struct[i][1]) if length_of_struct is not 0 else (ou[0][1],0) 
+      outputs, param = (struct[i][0],struct[i][1]) if length_of_struct is not 0 else (ou[0][1],0)
     else:
       inputs = struct[i-1][0]
       outputs, param = (ou[0][1],struct[i-1][1]) if length_of_struct is i  else (struct[i][0],struct[i][1])
@@ -380,3 +380,5 @@ def getTrainingSettings():
   return eval(array)
 
 
+if __name__ == "__main__":
+    run()
